@@ -6,10 +6,6 @@ The vmware-log-collectors-for-aws project team welcomes contributions from the c
 signed our contributor license agreement (CLA), our bot will update the issue when you open a Pull Request. For any
 questions about the CLA process, please refer to our [FAQ](https://cla.vmware.com/faq).
 
-## Community
-
-## Getting Started
-
 ## Contribution Flow
 
 This is a rough outline of what a contributor's workflow looks like:
@@ -66,8 +62,6 @@ git push --force-with-lease origin my-new-feature
 Be sure to add a comment to the PR indicating your new changes are ready to review, as GitHub does not generate a
 notification when you git push.
 
-### Code Style
-
 ### Formatting Commit Messages
 
 We follow the conventions on [How to Write a Git Commit Message](http://chris.beams.io/posts/git-commit/).
@@ -79,5 +73,3 @@ and commits.
 ## Reporting Bugs and Creating Issues
 
 When opening a new issue, try to roughly follow the commit message format conventions above.
-
-## Repository Structure

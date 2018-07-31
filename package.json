@@ -1,0 +1,22 @@
+{
+  "name": "li-lambda-collector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint src/**",
+    "test": "jest src",
+    "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"
+  },
+  "devDependencies": {
+    "jsdom": "11.11.0",
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jest": "^21.7.0",
+    "jest": "^22.1.4"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.268.1"
+  }
+}
