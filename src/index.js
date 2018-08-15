@@ -138,9 +138,16 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
 
 const handler = (event, context) => {
   const apiToken = process.env.LogIntelligence_API_Token;
+  const ingestionUrl = process.env.LogIntelligence_API_Url || 'https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream';
+  if (!apiToken || !ingestionUrl) {
+    context.fail(error);
+    console.log(error);
+    return;
+  }
+  
   const lintEnv = new LIntHttpEnv(
     'Bearer ' + apiToken,
-    'https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream',
+    ingestionUrl
   );
 
   if (event.awslogs) {
