@@ -141,8 +141,7 @@ const handler = (event, context) => {
   const ingestionUrl = process.env.LogIntelligence_API_Url || 'https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream';
 
   if (!apiToken || !ingestionUrl) {
-    context.fail(error);
-    console.log(error);
+    handleError('Neither API token nor ingestion URL can be missing. Please configure them in the lambda function');
     return;
   }
 
