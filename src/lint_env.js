@@ -3,7 +3,7 @@ Copyright 2018 VMware, Inc.
 SPDX-License-Identifier: MIT
 */
 
-const { LIntHttpEnv, LIntKafkaEnv } = require('./lint');
+const { LIntHttpEnv } = require('./lint');
 
 const lintTestEnv = new LIntHttpEnv(
   'Bearer mocktoken',

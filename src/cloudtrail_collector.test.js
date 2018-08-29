@@ -42,22 +42,24 @@ describe('CloudTrailHttpCollector', () => {
         {
           id: 'id1',
           field1: 'value1',
-        }
-      ]
+        },
+      ],
     };
 
     const expectedReqHeaders = {
       reqheaders: {
-        "authorization": "Bearer mocktoken",
-        "structure": "simple",
-        "content-type": "application/json"
-      }
+        authorization: 'Bearer mocktoken',
+        structure: 'simple',
+        'content-type': 'application/json',
+      },
     };
 
     const sendData = (done) => {
       nock('https://data.mock.symphony.com', expectedReqHeaders)
-        .post('/le-mans/v1/streams/ingestion-pipeline-stream',
-          JSON.stringify(logsJson.Records))
+        .post(
+          '/le-mans/v1/streams/ingestion-pipeline-stream',
+          JSON.stringify(logsJson.Records),
+        )
         .reply(200);
 
       gzipLogs(logsJson)

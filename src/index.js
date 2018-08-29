@@ -17,7 +17,7 @@ const flattenUserIdentity = (cloudTrailLogRecords) => {
   for (const record of cloudTrailLogRecords) {
     if (record.userIdentity) {
       for (const property of Object.keys(record.userIdentity)) {
-        const newPropName = 'userIdentity' + property.charAt(0).toUpperCase() + property.substr(1);
+        const newPropName = `userIdentity${property.charAt(0).toUpperCase()}${property.substr(1)}`;
         record[newPropName] = record.userIdentity[property];
       }
       delete record.userIdentity;
@@ -33,7 +33,7 @@ class CloudTrailHttpCollector extends Collector {
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
     if (!logsJson.Records) {
-      throw new Error("JSON blob does not have log records. Skip processing the blob.");
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
     }
 
     flattenUserIdentity(logsJson.Records);
@@ -49,7 +49,7 @@ class CloudTrailKafkaCollector extends Collector {
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
     if (!logsJson.Records) {
-      throw new Error("JSON blob does not have log records. Skip processing the blob.");
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
     }
 
     flattenUserIdentity(logsJson.Records);
@@ -66,7 +66,7 @@ const extractTags = (logText, tagRegexMap) => {
   if (!(logText instanceof String)) {
     text = JSON.stringify(logText);
   }
-  tags = {};
+  const tags = {};
   tagRegexMap.forEach((fieldRegex, fieldName) => {
     const result = text.match(fieldRegex);
     if (result) {
@@ -176,16 +176,13 @@ const handler = (event, context) => {
   const ingestionUrl = process.env.LogIntelligence_API_Url || 'https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream';
 
   const tagRegexMap = new Map();
-  Object.getOwnPropertyNames(process.env).forEach(v => { 
-    if (v.startsWith('Tag_')) { 
+  Object.getOwnPropertyNames(process.env).forEach(v => {
+    if (v.startsWith('Tag_')) {
       tagRegexMap.set(v.substring(4), new RegExp(process.env[v], 'i'));
     }
   });
 
-  const lintEnv = new LIntHttpEnv(
-    'Bearer ' + apiToken,
-    ingestionUrl
-  );
+  const lintEnv = new LIntHttpEnv(`Bearer ${apiToken}`, ingestionUrl);
 
   if (event.awslogs) {
     handleCloudWatchLogs(event, context, lintEnv, tagRegexMap);

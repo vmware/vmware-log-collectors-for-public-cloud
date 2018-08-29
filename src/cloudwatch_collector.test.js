@@ -28,9 +28,9 @@ describe('CloudWatchKafkaCollector', () => {
 
 describe('CloudWatchHttpCollector', () => {
   const tagRegexMap = new Map(Object.entries({
-    tag1: new RegExp('c(k+)c', 'i')
+    tag1: new RegExp('c(k+)c', 'i'),
   }));
-  const collector = new CloudWatchHttpCollector(lintEnv, tagRegexMap); 
+  const collector = new CloudWatchHttpCollector(lintEnv, tagRegexMap);
 
   describe('processLogsJson', () => {
     it('should process logs JSON', () => {
@@ -45,10 +45,10 @@ describe('CloudWatchHttpCollector', () => {
           {
             id: 'id1',
             text: 'abCkKKkcde',
-          }
-        ]
+          },
+        ],
       };
-      
+
       collector.processLogsJson(logsJson);
       expect(logsJson).toMatchSnapshot();
     });
@@ -58,11 +58,11 @@ describe('CloudWatchHttpCollector', () => {
         logEvents: [
           {
             id: 'id1',
-            text: [ { field1: 'abckkkkcde'} ]
-          }
-        ]
+            text: [{ field1: 'abckkkkcde' }],
+          },
+        ],
       };
-      
+
       collector.processLogsJson(logsJson);
       expect(logsJson).toMatchSnapshot();
     });
@@ -74,22 +74,24 @@ describe('CloudWatchHttpCollector', () => {
         {
           id: 'id1',
           field1: 'value1',
-        }
-      ]
+        },
+      ],
     };
 
     const expectedReqHeaders = {
       reqheaders: {
-        "authorization": "Bearer mocktoken",
-        "structure": "cloudwatch",
-        "content-type": "application/json"
-      }
+        authorization: 'Bearer mocktoken',
+        structure: 'cloudwatch',
+        'content-type': 'application/json',
+      },
     };
-    
+
     const sendData = (done) => {
       nock('https://data.mock.symphony.com', expectedReqHeaders)
-        .post('/le-mans/v1/streams/ingestion-pipeline-stream',
-          JSON.stringify(logsJson))
+        .post(
+          '/le-mans/v1/streams/ingestion-pipeline-stream',
+          JSON.stringify(logsJson),
+        )
         .reply(200);
 
       gzipLogs(logsJson)
