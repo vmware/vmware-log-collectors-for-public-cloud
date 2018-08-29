@@ -15,7 +15,7 @@ const {
 } = require('./index');
 
 describe('CloudWatchKafkaCollector', () => {
-  const collector = new CloudWatchKafkaCollector(lintEnv);
+  const collector = new CloudWatchKafkaCollector(lintEnv, new Map());
 
   it('processLogsJson', () => {
     const logsJson = createSample1();
@@ -27,11 +27,42 @@ describe('CloudWatchKafkaCollector', () => {
 });
 
 describe('CloudWatchHttpCollector', () => {
-  const collector = new CloudWatchHttpCollector(lintEnv);
+  const tagRegexMap = new Map(Object.entries({
+    tag1: new RegExp('c(k+)c', 'i')
+  }));
+  const collector = new CloudWatchHttpCollector(lintEnv, tagRegexMap); 
 
   describe('processLogsJson', () => {
     it('should process logs JSON', () => {
       const logsJson = createSample1();
+      collector.processLogsJson(logsJson);
+      expect(logsJson).toMatchSnapshot();
+    });
+
+    it('should extract tags from text string', () => {
+      const logsJson = {
+        logEvents: [
+          {
+            id: 'id1',
+            text: 'abCkKKkcde',
+          }
+        ]
+      };
+      
+      collector.processLogsJson(logsJson);
+      expect(logsJson).toMatchSnapshot();
+    });
+
+    it('should extract tags from text array', () => {
+      const logsJson = {
+        logEvents: [
+          {
+            id: 'id1',
+            text: [ { field1: 'abckkkkcde'} ]
+          }
+        ]
+      };
+      
       collector.processLogsJson(logsJson);
       expect(logsJson).toMatchSnapshot();
     });

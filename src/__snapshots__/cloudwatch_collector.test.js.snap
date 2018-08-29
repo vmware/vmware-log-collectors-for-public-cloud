@@ -1,5 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`CloudWatchHttpCollector processLogsJson should extract tags from text array 1`] = `
+Object {
+  "logEvents": Array [
+    Object {
+      "id": "id1",
+      "tag1": "ckkkkc",
+      "text": Array [
+        Object {
+          "field1": "abckkkkcde",
+        },
+      ],
+    },
+  ],
+}
+`;
+
+exports[`CloudWatchHttpCollector processLogsJson should extract tags from text string 1`] = `
+Object {
+  "logEvents": Array [
+    Object {
+      "id": "id1",
+      "tag1": "CkKKkc",
+      "text": "abCkKKkcde",
+    },
+  ],
+}
+`;
+
 exports[`CloudWatchHttpCollector processLogsJson should process logs JSON 1`] = `
 Object {
   "logEvents": Array [

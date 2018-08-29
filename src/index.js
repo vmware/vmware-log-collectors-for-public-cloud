@@ -61,37 +61,59 @@ class CloudTrailKafkaCollector extends Collector {
   }
 }
 
+const extractTags = (logText, tagRegexMap) => {
+  let text = logText;
+  if (!(logText instanceof String)) {
+    text = JSON.stringify(logText);
+  }
+  tags = {};
+  tagRegexMap.forEach((fieldRegex, fieldName) => {
+    const result = text.match(fieldRegex);
+    if (result) {
+      tags[fieldName] = result[0];
+    }
+  });
+  return tags;
+};
+
 /* eslint-disable no-param-reassign */
-const renameMessageToText = (cloudWatchLogs) => {
+const processLogText = (cloudWatchLogs, tagRegexMap) => {
   for (const logEvent of cloudWatchLogs.logEvents) {
     if ((logEvent.message) && (!logEvent.text)) {
       logEvent.text = logEvent.message;
       delete logEvent.message;
     }
+
+    if (logEvent.text) {
+      const tags = extractTags(logEvent.text, tagRegexMap);
+      Object.assign(logEvent, tags);
+    }
   }
 };
 
 class CloudWatchHttpCollector extends Collector {
-  constructor(lintEnv) {
+  constructor(lintEnv, tagRegexMap) {
     super('cloudwatch', lintEnv);
+    this.tagRegexMap = tagRegexMap;
   }
 
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
-    renameMessageToText(logsJson);
+    processLogText(logsJson, this.tagRegexMap);
     delete logsJson.subscriptionFilters;
     return JSON.stringify(logsJson);
   }
 }
 
 class CloudWatchKafkaCollector extends Collector {
-  constructor(lintEnv) {
+  constructor(lintEnv, tagRegexMap) {
     super('cloudwatch', lintEnv);
+    this.tagRegexMap = tagRegexMap;
   }
 
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
-    renameMessageToText(logsJson);
+    processLogText(logsJson, this.tagRegexMap);
     logsJson.structure = this.structure;
     delete logsJson.subscriptionFilters;
     // rename the field 'logEvents' to 'logs'.
@@ -115,8 +137,8 @@ const handleError = (error, context) => {
   console.log(error);
 };
 
-const handleCloudWatchLogs = (event, context, lintEnv) => {
-  const collector = new CloudWatchHttpCollector(lintEnv);
+const handleCloudWatchLogs = (event, context, lintEnv, tagRegexMap) => {
+  const collector = new CloudWatchHttpCollector(lintEnv, tagRegexMap);
   const zippedLogs = Buffer.from(event.awslogs.data, 'base64');
 
   sendLogs(zippedLogs, collector)
@@ -146,12 +168,19 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
 
 const handler = (event, context) => {
   const apiToken = process.env.LogIntelligence_API_Token;
-  const ingestionUrl = process.env.LogIntelligence_API_Url || 'https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream';
-
-  if (!apiToken || !ingestionUrl) {
-    handleError('Neither API token nor ingestion URL can be missing. Please configure them in the lambda function');
+  if (!apiToken) {
+    handleError('The API token is missing. Please configure it in an environment variable of the lambda function');
     return;
   }
+
+  const ingestionUrl = process.env.LogIntelligence_API_Url || 'https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream';
+
+  const tagRegexMap = new Map();
+  Object.getOwnPropertyNames(process.env).forEach(v => { 
+    if (v.startsWith('Tag_')) { 
+      tagRegexMap.set(v.substring(4), new RegExp(process.env[v], 'i'));
+    }
+  });
 
   const lintEnv = new LIntHttpEnv(
     'Bearer ' + apiToken,
@@ -159,7 +188,7 @@ const handler = (event, context) => {
   );
 
   if (event.awslogs) {
-    handleCloudWatchLogs(event, context, lintEnv);
+    handleCloudWatchLogs(event, context, lintEnv, tagRegexMap);
   }
 
   if (event.Records) {
