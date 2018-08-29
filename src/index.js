@@ -13,8 +13,8 @@ const {
 } = require('./lint');
 
 /* eslint-disable no-param-reassign */
-const flattenUserIdentity = (cloudTrailLogs) => {
-  for (const record of cloudTrailLogs.Records) {
+const flattenUserIdentity = (cloudTrailLogRecords) => {
+  for (const record of cloudTrailLogRecords) {
     if (record.userIdentity) {
       for (const property of Object.keys(record.userIdentity)) {
         const newPropName = 'userIdentity' + property.charAt(0).toUpperCase() + property.substr(1);
@@ -32,7 +32,11 @@ class CloudTrailHttpCollector extends Collector {
 
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
-    flattenUserIdentity(logsJson);
+    if (!logsJson.Records) {
+      throw new Error("JSON blob does not have log records. Skip processing the blob.");
+    }
+
+    flattenUserIdentity(logsJson.Records);
     return JSON.stringify(logsJson.Records);
   }
 }
@@ -44,7 +48,11 @@ class CloudTrailKafkaCollector extends Collector {
 
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
-    flattenUserIdentity(logsJson);
+    if (!logsJson.Records) {
+      throw new Error("JSON blob does not have log records. Skip processing the blob.");
+    }
+
+    flattenUserIdentity(logsJson.Records);
     logsJson.structure = this.structure;
     // rename the field 'Records' to 'logs'.
     logsJson.logs = logsJson.Records;

@@ -1,0 +1,170 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CloudTrailHttpCollector processLogsJson should process logs JSON 1`] = `
+Object {
+  "Records": Array [
+    Object {
+      "awsRegion": "ca-central-1",
+      "eventID": "c9931287-acd4-478f-aa24-f77c8d297f71",
+      "eventName": "DescribeSubnets",
+      "eventSource": "ec2.amazonaws.com",
+      "eventTime": "2018-06-14T17:17:56Z",
+      "eventType": "AwsApiCall",
+      "eventVersion": "1.05",
+      "recipientAccountId": "unittest9",
+      "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
+      "requestParameters": Object {
+        "filterSet": Object {
+          "items": Array [
+            Object {
+              "name": "vpc-id",
+              "valueSet": Object {
+                "items": Array [
+                  Object {
+                    "value": "vpc-04e3326d",
+                  },
+                ],
+              },
+            },
+          ],
+        },
+        "subnetSet": Object {},
+      },
+      "responseElements": null,
+      "sourceIPAddress": "13.56.178.189",
+      "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
+      "userIdentityAccessKeyId": "AKIAJDNI5LT67QRAUMIQ",
+      "userIdentityAccountId": "792677813823",
+      "userIdentityArn": "arn:aws:iam::792677813823:user/flands",
+      "userIdentityPrincipalId": "AIDAIRUNBBKT2UKVMBDMM",
+      "userIdentityType": "IAMUser",
+      "userIdentityUserName": "flands",
+    },
+    Object {
+      "awsRegion": "ca-central-1",
+      "eventID": "c9931287-acd4-478f-aa24-f77c8d297f71",
+      "eventName": "DescribeSubnets",
+      "eventSource": "ec2.amazonaws.com",
+      "eventTime": "2018-06-14T17:17:56Z",
+      "eventType": "AwsApiCall",
+      "eventVersion": "1.05",
+      "recipientAccountId": "unittest9",
+      "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
+      "requestParameters": Object {
+        "availabilityZoneSet": Object {},
+      },
+      "responseElements": null,
+      "sourceIPAddress": "13.56.178.189",
+      "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
+    },
+    Object {
+      "awsRegion": "ca-central-1",
+      "eventID": "c9931287-acd4-478f-aa24-f77c8d297f71",
+      "eventName": "DescribeSubnets",
+      "eventSource": "ec2.amazonaws.com",
+      "eventTime": "2018-06-14T17:17:56Z",
+      "eventType": "AwsApiCall",
+      "eventVersion": "1.05",
+      "recipientAccountId": "unittest9",
+      "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
+      "requestParameters": Object {
+        "availabilityZoneSet": Object {},
+      },
+      "responseElements": null,
+      "sourceIPAddress": "13.56.178.189",
+      "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
+      "userIdentityAccessKeyId": "AKIAJDNI5LT67QRAUMIQ",
+      "userIdentityAccountId": "792677813823",
+      "userIdentityArn": "arn:aws:iam::792677813823:user/flands",
+      "userIdentityPrincipalId": "AIDAIRUNBBKT2UKVMBDMM",
+      "userIdentityType": "IAMUser",
+      "userIdentityUserName": "flands",
+    },
+  ],
+}
+`;
+
+exports[`CloudTrailKafkaCollector processLogsJson 1`] = `
+Object {
+  "logs": Array [
+    Object {
+      "awsRegion": "ca-central-1",
+      "eventID": "c9931287-acd4-478f-aa24-f77c8d297f71",
+      "eventName": "DescribeSubnets",
+      "eventSource": "ec2.amazonaws.com",
+      "eventTime": "2018-06-14T17:17:56Z",
+      "eventType": "AwsApiCall",
+      "eventVersion": "1.05",
+      "recipientAccountId": "unittest9",
+      "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
+      "requestParameters": Object {
+        "filterSet": Object {
+          "items": Array [
+            Object {
+              "name": "vpc-id",
+              "valueSet": Object {
+                "items": Array [
+                  Object {
+                    "value": "vpc-04e3326d",
+                  },
+                ],
+              },
+            },
+          ],
+        },
+        "subnetSet": Object {},
+      },
+      "responseElements": null,
+      "sourceIPAddress": "13.56.178.189",
+      "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
+      "userIdentityAccessKeyId": "AKIAJDNI5LT67QRAUMIQ",
+      "userIdentityAccountId": "792677813823",
+      "userIdentityArn": "arn:aws:iam::792677813823:user/flands",
+      "userIdentityPrincipalId": "AIDAIRUNBBKT2UKVMBDMM",
+      "userIdentityType": "IAMUser",
+      "userIdentityUserName": "flands",
+    },
+    Object {
+      "awsRegion": "ca-central-1",
+      "eventID": "c9931287-acd4-478f-aa24-f77c8d297f71",
+      "eventName": "DescribeSubnets",
+      "eventSource": "ec2.amazonaws.com",
+      "eventTime": "2018-06-14T17:17:56Z",
+      "eventType": "AwsApiCall",
+      "eventVersion": "1.05",
+      "recipientAccountId": "unittest9",
+      "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
+      "requestParameters": Object {
+        "availabilityZoneSet": Object {},
+      },
+      "responseElements": null,
+      "sourceIPAddress": "13.56.178.189",
+      "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
+    },
+    Object {
+      "awsRegion": "ca-central-1",
+      "eventID": "c9931287-acd4-478f-aa24-f77c8d297f71",
+      "eventName": "DescribeSubnets",
+      "eventSource": "ec2.amazonaws.com",
+      "eventTime": "2018-06-14T17:17:56Z",
+      "eventType": "AwsApiCall",
+      "eventVersion": "1.05",
+      "recipientAccountId": "unittest9",
+      "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
+      "requestParameters": Object {
+        "availabilityZoneSet": Object {},
+      },
+      "responseElements": null,
+      "sourceIPAddress": "13.56.178.189",
+      "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
+      "userIdentityAccessKeyId": "AKIAJDNI5LT67QRAUMIQ",
+      "userIdentityAccountId": "792677813823",
+      "userIdentityArn": "arn:aws:iam::792677813823:user/flands",
+      "userIdentityPrincipalId": "AIDAIRUNBBKT2UKVMBDMM",
+      "userIdentityType": "IAMUser",
+      "userIdentityUserName": "flands",
+    },
+  ],
+  "structure": "simple",
+}
+`;

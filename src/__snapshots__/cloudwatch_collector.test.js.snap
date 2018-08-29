@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CloudWatchHttpCollector processLogsJson should process logs JSON 1`] = `
+Object {
+  "logEvents": Array [
+    Object {
+      "id": "34051922485820161636472577410016310394916410432944603138",
+      "text": "2018-05-21T22:16:53.934Z	aab15e49-5d44-11e8-a7db-afa704cec35a	Status: 200
+",
+    },
+    Object {
+      "id": "001",
+      "message": "message of 001",
+      "text": "text of 001",
+    },
+    Object {
+      "id": "34051922485820161636472577410016310394916410432944603138",
+      "text": Array [
+        Object {
+          "fielda": "fielda",
+        },
+      ],
+    },
+  ],
+  "logGroup": "/aws/lambda/runbook",
+  "logStream": "unittest8",
+  "messageType": "DATA_MESSAGE",
+  "owner": "792677813823",
+}
+`;
+
+exports[`CloudWatchKafkaCollector processLogsJson 1`] = `
+Object {
+  "logGroup": "/aws/lambda/runbook",
+  "logStream": "unittest8",
+  "logs": Array [
+    Object {
+      "id": "34051922485820161636472577410016310394916410432944603138",
+      "text": "2018-05-21T22:16:53.934Z	aab15e49-5d44-11e8-a7db-afa704cec35a	Status: 200
+",
+    },
+    Object {
+      "id": "001",
+      "message": "message of 001",
+      "text": "text of 001",
+    },
+    Object {
+      "id": "34051922485820161636472577410016310394916410432944603138",
+      "text": Array [
+        Object {
+          "fielda": "fielda",
+        },
+      ],
+    },
+  ],
+  "messageType": "DATA_MESSAGE",
+  "owner": "792677813823",
+  "structure": "cloudwatch",
+}
+`;
