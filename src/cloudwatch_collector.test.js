@@ -1,3 +1,8 @@
+/*
+Copyright 2018 VMware, Inc.
+SPDX-License-Identifier: MIT
+*/
+
 const lintEnv = require('./lint_env').lintTestEnv;
 const { createSample1 } = require('./cloudwatch_testdata');
 const { gzipLogs } = require('./lint');
@@ -33,12 +38,29 @@ describe('CloudWatchHttpCollector', () => {
   });
 
   describe('sendLogs', () => {
-    const sendData = (done) => {
-      nock('https://data.mock.symphony.com')
-        .post('/le-mans/v1/streams/ingestion-pipeline-stream')
-        .reply(200, { message: 'ok' });
+    const logsJson = {
+      logEvents: [
+        {
+          id: 'id1',
+          field1: 'value1',
+        }
+      ]
+    };
 
-      const logsJson = createSample1();
+    const expectedReqHeaders = {
+      reqheaders: {
+        "authorization": "Bearer mocktoken",
+        "structure": "cloudwatch",
+        "content-type": "application/json"
+      }
+    };
+    
+    const sendData = (done) => {
+      nock('https://data.mock.symphony.com', expectedReqHeaders)
+        .post('/le-mans/v1/streams/ingestion-pipeline-stream',
+          JSON.stringify(logsJson))
+        .reply(200);
+
       gzipLogs(logsJson)
         .then(zippedData => sendLogs(zippedData, collector))
         .then(() => done())
@@ -48,9 +70,5 @@ describe('CloudWatchHttpCollector', () => {
     it('should send request to the HTTP stream', (done) => {
       sendData(done);
     });
-
-    // it('should send request to the Kafka stream', (done) => {
-    //   sendData(false, done);
-    // }, 40000);
   });
 });

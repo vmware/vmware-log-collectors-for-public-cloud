@@ -1,3 +1,8 @@
+/*
+Copyright 2018 VMware, Inc.
+SPDX-License-Identifier: MIT
+*/
+
 const createSample1 = () => ({
   Records: [
     {

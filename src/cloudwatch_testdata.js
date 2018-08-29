@@ -1,3 +1,8 @@
+/*
+Copyright 2018 VMware, Inc.
+SPDX-License-Identifier: MIT
+*/
+
 const createSample1 = () => ({
   messageType: 'DATA_MESSAGE',
   owner: '792677813823',
