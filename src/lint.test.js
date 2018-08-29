@@ -3,6 +3,8 @@ Copyright 2018 VMware, Inc.
 SPDX-License-Identifier: MIT
 */
 
+const nock = require('nock');
+
 const {
   gzipLogs,
   gunzipData,
@@ -69,9 +71,13 @@ describe('gzipLogs and gunzipData', () => {
 
 describe('sendHttpRequest', () => {
   it('should be able to send a request', (done) => {
+    nock('https://test.com')
+      .get('/test')
+      .reply(200);
+
     const options = {
-      hostname: 'www.vmware.com',
-      path: '/',
+      hostname: 'test.com',
+      path: '/test',
       method: 'GET',
     };
 

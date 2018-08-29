@@ -3,19 +3,16 @@ Copyright 2018 VMware, Inc.
 SPDX-License-Identifier: MIT
 */
 
-const lintEnv = require('./lint_env').lintTestEnv;
+const { lintTestEnv, sendLogsAndVerify } = require('./lint_env');
 const { createSample1 } = require('./cloudtrail_testdata');
-const { gzipLogs } = require('./lint');
-const nock = require('nock');
 
 const {
-  sendLogs,
   CloudTrailHttpCollector,
   CloudTrailKafkaCollector,
 } = require('./index');
 
 describe('CloudTrailKafkaCollector', () => {
-  const collector = new CloudTrailKafkaCollector(lintEnv);
+  const collector = new CloudTrailKafkaCollector(lintTestEnv);
 
   it('processLogsJson', () => {
     const logsJson = createSample1();
@@ -26,7 +23,7 @@ describe('CloudTrailKafkaCollector', () => {
 });
 
 describe('CloudTrailHttpCollector', () => {
-  const collector = new CloudTrailHttpCollector(lintEnv);
+  const collector = new CloudTrailHttpCollector(lintTestEnv);
 
   describe('processLogsJson', () => {
     it('should process logs JSON', () => {
@@ -37,39 +34,25 @@ describe('CloudTrailHttpCollector', () => {
   });
 
   describe('sendLogs', () => {
-    const logsJson = {
-      Records: [
-        {
-          id: 'id1',
-          field1: 'value1',
-        },
-      ],
-    };
-
-    const expectedReqHeaders = {
-      reqheaders: {
-        authorization: 'Bearer mocktoken',
-        structure: 'simple',
-        'content-type': 'application/json',
-      },
-    };
-
-    const sendData = (done) => {
-      nock('https://data.mock.symphony.com', expectedReqHeaders)
-        .post(
-          '/le-mans/v1/streams/ingestion-pipeline-stream',
-          JSON.stringify(logsJson.Records),
-        )
-        .reply(200);
-
-      gzipLogs(logsJson)
-        .then(zippedData => sendLogs(zippedData, collector))
-        .then(() => done())
-        .catch(error => done.fail(error));
-    };
-
     it('should send request to the HTTP stream', (done) => {
-      sendData(done);
+      const logsJson = {
+        Records: [
+          {
+            id: 'id1',
+            field1: 'value1',
+          },
+        ],
+      };
+
+      const expectedReqHeaders = {
+        reqheaders: {
+          authorization: 'Bearer mocktoken',
+          structure: 'simple',
+          'content-type': 'application/json',
+        },
+      };
+
+      sendLogsAndVerify(done, collector, logsJson, logsJson.Records, expectedReqHeaders);
     }, 10000);
   });
 });
