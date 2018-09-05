@@ -28,6 +28,33 @@ Object {
 }
 `;
 
+exports[`CloudWatchHttpCollector processLogsJson should merge in JSON fields and extract tags 1`] = `
+Object {
+  "logEvents": Array [
+    Object {
+      "field2": "value2",
+      "field3": "abCkKKkcde",
+      "id": "id1",
+      "tag1": "CkKKkc",
+      "text": " { \\"field2\\": \\"value2\\", \\"field3\\": \\"abCkKKkcde\\" } ",
+    },
+  ],
+}
+`;
+
+exports[`CloudWatchHttpCollector processLogsJson should merge in JSON fields if log text is in JSON format 1`] = `
+Object {
+  "logEvents": Array [
+    Object {
+      "field2": "value2",
+      "field3": "value3",
+      "id": "id1",
+      "text": " { \\"field2\\": \\"value2\\", \\"field3\\": \\"value3\\" } ",
+    },
+  ],
+}
+`;
+
 exports[`CloudWatchHttpCollector processLogsJson should process logs JSON 1`] = `
 Object {
   "logEvents": Array [
@@ -84,5 +111,12 @@ Object {
   "messageType": "DATA_MESSAGE",
   "owner": "792677813823",
   "structure": "cloudwatch",
+}
+`;
+
+exports[`tryParseTextAsJson should parse text in JSON format 1`] = `
+Object {
+  "field2": "value2",
+  "field3": "value3",
 }
 `;

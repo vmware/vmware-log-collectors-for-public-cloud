@@ -9,7 +9,20 @@ const { createSample1 } = require('./cloudwatch_testdata');
 const {
   CloudWatchHttpCollector,
   CloudWatchKafkaCollector,
+  tryParseTextAsJson,
 } = require('./index');
+
+describe('tryParseTextAsJson', () => {
+  it('should parse text in JSON format', () => {
+    const textJson = tryParseTextAsJson(' { "field2": "value2", "field3": "value3" } ');
+    expect(textJson).toMatchSnapshot();
+  });
+
+  it('should parse text not in JSON format', () => {
+    const textJson = tryParseTextAsJson(' { "field2": "value2", field3: "value3" } ');
+    expect(textJson).toEqual({});
+  });
+});
 
 describe('CloudWatchKafkaCollector', () => {
   const collector = new CloudWatchKafkaCollector(lintTestEnv, new Map());
@@ -32,6 +45,34 @@ describe('CloudWatchHttpCollector', () => {
   describe('processLogsJson', () => {
     it('should process logs JSON', () => {
       const logsJson = createSample1();
+      collector.processLogsJson(logsJson);
+      expect(logsJson).toMatchSnapshot();
+    });
+
+    it('should merge in JSON fields if log text is in JSON format', () => {
+      const logsJson = {
+        logEvents: [
+          {
+            id: 'id1',
+            text: ' { "field2": "value2", "field3": "value3" } ',
+          },
+        ],
+      };
+
+      collector.processLogsJson(logsJson);
+      expect(logsJson).toMatchSnapshot();
+    });
+
+    it('should merge in JSON fields and extract tags', () => {
+      const logsJson = {
+        logEvents: [
+          {
+            id: 'id1',
+            text: ' { "field2": "value2", "field3": "abCkKKkcde" } ',
+          },
+        ],
+      };
+
       collector.processLogsJson(logsJson);
       expect(logsJson).toMatchSnapshot();
     });

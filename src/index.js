@@ -76,6 +76,14 @@ const extractTags = (logText, tagRegexMap) => {
   return tags;
 };
 
+const tryParseTextAsJson = (logText) => {
+  try {
+    return JSON.parse(logText);
+  } catch (e) { 
+    return {}; 
+  }
+};
+
 /* eslint-disable no-param-reassign */
 const processLogText = (cloudWatchLogs, tagRegexMap) => {
   for (const logEvent of cloudWatchLogs.logEvents) {
@@ -86,7 +94,8 @@ const processLogText = (cloudWatchLogs, tagRegexMap) => {
 
     if (logEvent.text) {
       const tags = extractTags(logEvent.text, tagRegexMap);
-      Object.assign(logEvent, tags);
+      const textJson = tryParseTextAsJson(logEvent.text);
+      Object.assign(logEvent, tags, textJson);
     }
   }
 };
@@ -200,4 +209,5 @@ module.exports = {
   CloudTrailKafkaCollector,
   CloudWatchHttpCollector,
   CloudWatchKafkaCollector,
+  tryParseTextAsJson,
 };
