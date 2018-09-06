@@ -78,7 +78,13 @@ const extractTags = (logText, tagRegexMap) => {
 
 const tryParseTextAsJson = (logText) => {
   try {
-    return JSON.parse(logText);
+    let textJson = JSON.parse(logText);
+    if ((textJson.timestamp) && 
+        (typeof textJson.timestamp === 'string')) {
+      const numericTimestamp = parseInt(textJson.timestamp);
+      textJson.timestamp = numericTimestamp || textJson.timestamp;
+    }
+    return textJson;
   } catch (e) { 
     return {}; 
   }

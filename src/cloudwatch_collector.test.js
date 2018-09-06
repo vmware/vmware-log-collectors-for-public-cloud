@@ -54,7 +54,7 @@ describe('CloudWatchHttpCollector', () => {
         logEvents: [
           {
             id: 'id1',
-            text: ' { "field2": "value2", "field3": "value3" } ',
+            text: ' { "timestamp": "1234", "field3": "value3" } ',
           },
         ],
       };
