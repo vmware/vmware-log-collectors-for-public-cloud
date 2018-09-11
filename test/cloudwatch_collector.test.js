@@ -3,14 +3,14 @@ Copyright 2018 VMware, Inc.
 SPDX-License-Identifier: MIT
 */
 
-const { lintTestEnv, sendLogsAndVerify } = require('./helper.test');
-const { createSample1 } = require('./cloudwatch_testdata');
+const { lintTestEnv, sendLogsAndVerify } = require('../test/helper.test');
+const { createSample1 } = require('../test/cloudwatch_testdata');
 
 const {
   CloudWatchHttpCollector,
   CloudWatchKafkaCollector,
   processLogTextAsJson,
-} = require('./index');
+} = require('../src/index');
 
 describe('processLogTextAsJson', () => {
   it('should process log text in JSON format', () => {

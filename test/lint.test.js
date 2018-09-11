@@ -12,7 +12,7 @@ const {
   sendHttpRequest,
   LIntKafkaEnv,
   flattenJson,
-} = require('./lint');
+} = require('../src/lint');
 
 describe('flattenJson', () => {
   it('should flatten arrays in JSON', () => {
@@ -22,16 +22,16 @@ describe('flattenJson', () => {
   });
 
   it('should work when there is nothing to flatten', () => {
-    const exampleJson = { 
+    const exampleJson = {
       field1: 'value1',
-      field2: 'value2'
+      field2: 'value2',
     };
     const result = flattenJson(exampleJson);
     expect(result).toMatchSnapshot();
   });
 
   it('should flatten nested arrays and objects', () => {
-    const exampleJson = { 
+    const exampleJson = {
       field1: { field11: 'value11', field12: 'value12' },
       field2: 'value2',
       field3: 3,

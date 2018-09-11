@@ -3,13 +3,13 @@ Copyright 2018 VMware, Inc.
 SPDX-License-Identifier: MIT
 */
 
-const { lintTestEnv, sendLogsAndVerify } = require('./helper.test');
-const { createSample1 } = require('./cloudtrail_testdata');
+const { lintTestEnv, sendLogsAndVerify } = require('../test/helper.test');
+const { createSample1 } = require('../test/cloudtrail_testdata');
 
 const {
   CloudTrailHttpCollector,
   CloudTrailKafkaCollector,
-} = require('./index');
+} = require('../src/index');
 
 describe('CloudTrailKafkaCollector', () => {
   const collector = new CloudTrailKafkaCollector(lintTestEnv);

@@ -1,10 +1,10 @@
 const nock = require('nock');
-const { sendLogs } = require('./index');
+const { sendLogs } = require('../src/index');
 
 const {
   gzipLogs,
   LIntHttpEnv,
-} = require('./lint');
+} = require('../src/lint');
 
 const lintTestEnv = new LIntHttpEnv(
   'Bearer mocktoken',

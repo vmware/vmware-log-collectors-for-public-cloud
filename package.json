@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint src/**",
-    "test": "jest src",
-    "coverage": "jest --collectCoverageFrom=src/**.js --coverage src"
+    "lint": "eslint src/** test/**",
+    "test": "jest test",
+    "coverage": "jest --collectCoverageFrom=src/**.js --coverage test"
   },
   "jest": {
     "verbose": true,
     "testURL": "http://localhost/",
-    "testPathIgnorePatterns": ["<rootDir>/src/helper.test.js", "<rootDir>/node_modules/"]
+    "testPathIgnorePatterns": ["<rootDir>/test/helper.test.js", "<rootDir>/node_modules/"]
   },
   "devDependencies": {
     "eslint": "^4.16.0",
