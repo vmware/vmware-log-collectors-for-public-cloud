@@ -23,7 +23,7 @@ class LIntKafkaEnv {
     };
   }
 
-  createRequestOptions(structure) {
+  createRequestOptions() {
     return this.kafkaStreamOptions;
   }
 }

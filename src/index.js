@@ -78,15 +78,15 @@ const extractTags = (logText, tagRegexMap) => {
 
 const tryParseTextAsJson = (logText) => {
   try {
-    let textJson = JSON.parse(logText);
-    if ((textJson.timestamp) && 
+    const textJson = JSON.parse(logText);
+    if ((textJson.timestamp) &&
         (typeof textJson.timestamp === 'string')) {
-      const numericTimestamp = parseInt(textJson.timestamp);
+      const numericTimestamp = parseInt(textJson.timestamp, 10);
       textJson.timestamp = numericTimestamp || textJson.timestamp;
     }
     return textJson;
-  } catch (e) { 
-    return {}; 
+  } catch (e) {
+    return {};
   }
 };
 
@@ -191,7 +191,7 @@ const handler = (event, context) => {
   const ingestionUrl = process.env.LogIntelligence_API_Url || 'https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream';
 
   const tagRegexMap = new Map();
-  Object.getOwnPropertyNames(process.env).forEach(v => {
+  Object.getOwnPropertyNames(process.env).forEach((v) => {
     if (v.startsWith('Tag_')) {
       tagRegexMap.set(v.substring(4), new RegExp(process.env[v], 'i'));
     }

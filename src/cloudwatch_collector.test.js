@@ -3,7 +3,7 @@ Copyright 2018 VMware, Inc.
 SPDX-License-Identifier: MIT
 */
 
-const { lintTestEnv, sendLogsAndVerify } = require('./lint_env');
+const { lintTestEnv, sendLogsAndVerify } = require('./lint.test');
 const { createSample1 } = require('./cloudwatch_testdata');
 
 const {
