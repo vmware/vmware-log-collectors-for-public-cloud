@@ -10,7 +10,8 @@
   },
   "jest": {
     "verbose": true,
-    "testURL": "http://localhost/"
+    "testURL": "http://localhost/",
+    "testPathIgnorePatterns": ["<rootDir>/src/helper.test.js", "<rootDir>/node_modules/"]
   },
   "devDependencies": {
     "eslint": "^4.16.0",

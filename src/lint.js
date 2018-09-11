@@ -98,7 +98,24 @@ class Collector {
   }
 }
 
+/* eslint-disable no-param-reassign */
+const flattenJson = (jsonObject, parentKey = null, level = 1, result = {}) => {
+  Object.keys(jsonObject).forEach((fieldKey) => {
+    const fieldValue = jsonObject[fieldKey];
+    const newFieldKey = parentKey ? `${parentKey}.${fieldKey}` : fieldKey;
+
+    if ((level < 8) && (fieldValue instanceof Object)) { // 8 is the max level
+      flattenJson(fieldValue, newFieldKey, level + 1, result);
+    } else {
+      result[newFieldKey] = fieldValue;
+    }
+  });
+
+  return result;
+};
+
 module.exports = {
+  flattenJson,
   sendHttpRequest,
   gzipLogs,
   gunzipData,

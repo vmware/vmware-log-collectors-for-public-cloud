@@ -114,9 +114,14 @@ Object {
 }
 `;
 
-exports[`tryParseTextAsJson should parse text in JSON format 1`] = `
+exports[`processLogTextAsJson should process log text in JSON format 1`] = `
 Object {
+  "field1.field11": "value11",
+  "field1.field12": "value12",
   "field2": "value2",
-  "field3": "value3",
+  "field3": 3,
+  "field4.field41.0": "a",
+  "field4.field41.1": "b",
+  "field4.field41.2": "c",
 }
 `;

@@ -10,6 +10,7 @@ const {
   gunzipData,
   LIntHttpEnv,
   Collector,
+  flattenJson,
 } = require('./lint');
 
 /* eslint-disable no-param-reassign */
@@ -76,9 +77,10 @@ const extractTags = (logText, tagRegexMap) => {
   return tags;
 };
 
-const tryParseTextAsJson = (logText) => {
+const processLogTextAsJson = (logText) => {
   try {
-    const textJson = JSON.parse(logText);
+    let textJson = JSON.parse(logText);
+    textJson = flattenJson(textJson);
     if ((textJson.timestamp) &&
         (typeof textJson.timestamp === 'string')) {
       const numericTimestamp = parseInt(textJson.timestamp, 10);
@@ -100,7 +102,7 @@ const processLogText = (cloudWatchLogs, tagRegexMap) => {
 
     if (logEvent.text) {
       const tags = extractTags(logEvent.text, tagRegexMap);
-      const textJson = tryParseTextAsJson(logEvent.text);
+      const textJson = processLogTextAsJson(logEvent.text);
       Object.assign(logEvent, tags, textJson);
     }
   }
@@ -215,5 +217,5 @@ module.exports = {
   CloudTrailKafkaCollector,
   CloudWatchHttpCollector,
   CloudWatchKafkaCollector,
-  tryParseTextAsJson,
+  processLogTextAsJson,
 };

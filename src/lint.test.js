@@ -4,34 +4,43 @@ SPDX-License-Identifier: MIT
 */
 
 const nock = require('nock');
-const { sendLogs } = require('./index');
+const { lintTestEnv } = require('./helper.test');
 
 const {
   gzipLogs,
   gunzipData,
   sendHttpRequest,
-  LIntHttpEnv,
   LIntKafkaEnv,
+  flattenJson,
 } = require('./lint');
 
-const lintTestEnv = new LIntHttpEnv(
-  'Bearer mocktoken',
-  'https://data.mock.symphony.com/le-mans/v1/streams/ingestion-pipeline-stream',
-);
+describe('flattenJson', () => {
+  it('should flatten arrays in JSON', () => {
+    const exampleJson = ['a', 'b', 'c'];
+    const result = flattenJson(exampleJson);
+    expect(result).toMatchSnapshot();
+  });
 
-const sendLogsAndVerify = (done, collector, logsJson, expectedReqBody, expectedReqHeaders) => {
-  nock('https://data.mock.symphony.com', expectedReqHeaders)
-    .post(
-      '/le-mans/v1/streams/ingestion-pipeline-stream',
-      JSON.stringify(logsJson.Records),
-    )
-    .reply(200);
+  it('should work when there is nothing to flatten', () => {
+    const exampleJson = { 
+      field1: 'value1',
+      field2: 'value2'
+    };
+    const result = flattenJson(exampleJson);
+    expect(result).toMatchSnapshot();
+  });
 
-  gzipLogs(logsJson)
-    .then(zippedData => sendLogs(zippedData, collector))
-    .then(() => done())
-    .catch(error => done.fail(error));
-};
+  it('should flatten nested arrays and objects', () => {
+    const exampleJson = { 
+      field1: { field11: 'value11', field12: 'value12' },
+      field2: 'value2',
+      field3: 3,
+      field4: { field41: ['a', 'b', 'c'] },
+    };
+    const result = flattenJson(exampleJson);
+    expect(result).toMatchSnapshot();
+  });
+});
 
 describe('LIntHttpEnv', () => {
   it('should create options for the HTTP stream', () => {
@@ -103,8 +112,3 @@ describe('sendHttpRequest', () => {
       );
   });
 });
-
-module.exports = {
-  lintTestEnv,
-  sendLogsAndVerify,
-};

@@ -3,23 +3,35 @@ Copyright 2018 VMware, Inc.
 SPDX-License-Identifier: MIT
 */
 
-const { lintTestEnv, sendLogsAndVerify } = require('./lint.test');
+const { lintTestEnv, sendLogsAndVerify } = require('./helper.test');
 const { createSample1 } = require('./cloudwatch_testdata');
 
 const {
   CloudWatchHttpCollector,
   CloudWatchKafkaCollector,
-  tryParseTextAsJson,
+  processLogTextAsJson,
 } = require('./index');
 
-describe('tryParseTextAsJson', () => {
-  it('should parse text in JSON format', () => {
-    const textJson = tryParseTextAsJson(' { "field2": "value2", "field3": "value3" } ');
+describe('processLogTextAsJson', () => {
+  it('should process log text in JSON format', () => {
+    const textJson = processLogTextAsJson(`
+      { 
+        "field1": { 
+          "field11": "value11",
+          "field12": "value12"
+        },
+        "field2": "value2", 
+        "field3": 3,
+        "field4": {
+          "field41": ["a", "b", "c"]
+        }
+      }
+    `);
     expect(textJson).toMatchSnapshot();
   });
 
-  it('should parse text not in JSON format', () => {
-    const textJson = tryParseTextAsJson(' { "field2": "value2", field3: "value3" } ');
+  it('should process log text not in JSON format', () => {
+    const textJson = processLogTextAsJson(' { "field2": "value2", field3: "value3" } ');
     expect(textJson).toEqual({});
   });
 });
