@@ -11,6 +11,7 @@ Object {
       "eventTime": "2018-06-14T17:17:56Z",
       "eventType": "AwsApiCall",
       "eventVersion": "1.05",
+      "ingest_timestamp": 1538769915817,
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
       "requestParameters": Object {
@@ -48,6 +49,7 @@ Object {
       "eventTime": "2018-06-14T17:17:56Z",
       "eventType": "AwsApiCall",
       "eventVersion": "1.05",
+      "ingest_timestamp": 1538769915817,
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
       "requestParameters": Object {
@@ -65,6 +67,7 @@ Object {
       "eventTime": "2018-06-14T17:17:56Z",
       "eventType": "AwsApiCall",
       "eventVersion": "1.05",
+      "ingest_timestamp": 1538769915817,
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
       "requestParameters": Object {
@@ -95,6 +98,7 @@ Object {
       "eventTime": "2018-06-14T17:17:56Z",
       "eventType": "AwsApiCall",
       "eventVersion": "1.05",
+      "ingest_timestamp": 1538769915817,
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
       "requestParameters": Object {
@@ -132,6 +136,7 @@ Object {
       "eventTime": "2018-06-14T17:17:56Z",
       "eventType": "AwsApiCall",
       "eventVersion": "1.05",
+      "ingest_timestamp": 1538769915817,
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
       "requestParameters": Object {
@@ -149,6 +154,7 @@ Object {
       "eventTime": "2018-06-14T17:17:56Z",
       "eventType": "AwsApiCall",
       "eventVersion": "1.05",
+      "ingest_timestamp": 1538769915817,
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
       "requestParameters": Object {

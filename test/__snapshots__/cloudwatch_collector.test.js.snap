@@ -2,6 +2,7 @@
 
 exports[`CloudWatchHttpCollector processLogsJson should extract tags from text array 1`] = `
 Object {
+  "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
       "id": "id1",
@@ -18,6 +19,7 @@ Object {
 
 exports[`CloudWatchHttpCollector processLogsJson should extract tags from text string 1`] = `
 Object {
+  "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
       "id": "id1",
@@ -30,6 +32,7 @@ Object {
 
 exports[`CloudWatchHttpCollector processLogsJson should merge in JSON fields and extract tags 1`] = `
 Object {
+  "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
       "field2": "value2",
@@ -44,6 +47,7 @@ Object {
 
 exports[`CloudWatchHttpCollector processLogsJson should merge in JSON fields if log text is in JSON format 1`] = `
 Object {
+  "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
       "field3": "value3",
@@ -57,6 +61,7 @@ Object {
 
 exports[`CloudWatchHttpCollector processLogsJson should process logs JSON 1`] = `
 Object {
+  "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
       "id": "34051922485820161636472577410016310394916410432944603138",
@@ -86,6 +91,7 @@ Object {
 
 exports[`CloudWatchKafkaCollector processLogsJson 1`] = `
 Object {
+  "ingest_timestamp": 1538769915817,
   "logGroup": "/aws/lambda/runbook",
   "logStream": "unittest8",
   "logs": Array [

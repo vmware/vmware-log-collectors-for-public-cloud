@@ -137,7 +137,17 @@ describe('CloudWatchHttpCollector', () => {
         },
       };
 
-      sendLogsAndVerify(done, collector, logsJson, logsJson, expectedReqHeaders);
+      const expectedReqBody = {
+        logEvents: [
+          {
+            id: 'id1',
+            field1: 'value1',
+          },
+        ],
+        ingest_timestamp: 1538769915817,
+      };
+
+      sendLogsAndVerify(done, collector, logsJson, expectedReqBody, expectedReqHeaders);
     });
   });
 });

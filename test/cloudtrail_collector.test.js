@@ -52,7 +52,13 @@ describe('CloudTrailHttpCollector', () => {
         },
       };
 
-      sendLogsAndVerify(done, collector, logsJson, logsJson.Records, expectedReqHeaders);
+      const expectedReqBody = [{
+        id: 'id1',
+        field1: 'value1',
+        ingest_timestamp: 1538769915817,
+      }];
+
+      sendLogsAndVerify(done, collector, logsJson, expectedReqBody, expectedReqHeaders);
     }, 10000);
   });
 });

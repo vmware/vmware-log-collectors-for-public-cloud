@@ -14,15 +14,22 @@ const {
 } = require('./lint');
 
 /* eslint-disable no-param-reassign */
-const flattenUserIdentity = (cloudTrailLogRecords) => {
-  for (const record of cloudTrailLogRecords) {
-    if (record.userIdentity) {
-      for (const property of Object.keys(record.userIdentity)) {
-        const newPropName = `userIdentity${property.charAt(0).toUpperCase()}${property.substr(1)}`;
-        record[newPropName] = record.userIdentity[property];
-      }
-      delete record.userIdentity;
+const flattenUserIdentity = (record) => {
+  if (record.userIdentity) {
+    for (const property of Object.keys(record.userIdentity)) {
+      const newPropName = `userIdentity${property.charAt(0).toUpperCase()}${property.substr(1)}`;
+      record[newPropName] = record.userIdentity[property];
     }
+    delete record.userIdentity;
+  }
+}
+
+/* eslint-disable no-param-reassign */
+const processCloudTrailLogs = (cloudTrailLogRecords) => {
+  const ingestionTime = Date.now();
+  for (const record of cloudTrailLogRecords) {
+    record.ingest_timestamp = ingestionTime;
+    flattenUserIdentity(record);
   }
 };
 
@@ -37,7 +44,7 @@ class CloudTrailHttpCollector extends Collector {
       throw new Error('JSON blob does not have log records. Skip processing the blob.');
     }
 
-    flattenUserIdentity(logsJson.Records);
+    processCloudTrailLogs(logsJson.Records);
     return JSON.stringify(logsJson.Records);
   }
 }
@@ -53,7 +60,7 @@ class CloudTrailKafkaCollector extends Collector {
       throw new Error('JSON blob does not have log records. Skip processing the blob.');
     }
 
-    flattenUserIdentity(logsJson.Records);
+    processCloudTrailLogs(logsJson.Records);
     logsJson.structure = this.structure;
     // rename the field 'Records' to 'logs'.
     logsJson.logs = logsJson.Records;
@@ -116,6 +123,7 @@ class CloudWatchHttpCollector extends Collector {
 
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
+    logsJson.ingest_timestamp = Date.now();
     processLogText(logsJson, this.tagRegexMap);
     delete logsJson.subscriptionFilters;
     return JSON.stringify(logsJson);
@@ -130,6 +138,7 @@ class CloudWatchKafkaCollector extends Collector {
 
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
+    logsJson.ingest_timestamp = Date.now();
     processLogText(logsJson, this.tagRegexMap);
     logsJson.structure = this.structure;
     delete logsJson.subscriptionFilters;
