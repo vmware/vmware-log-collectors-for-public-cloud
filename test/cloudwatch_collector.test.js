@@ -5,6 +5,7 @@ SPDX-License-Identifier: MIT
 
 const { lintTestEnv, sendLogsAndVerify } = require('../test/helper.test');
 const { createSample1 } = require('../test/cloudwatch_testdata');
+const { kubernetesLogSample } = require('../test/cloudwatch_testdata');
 
 const {
   CloudWatchHttpCollector,
@@ -116,6 +117,26 @@ describe('CloudWatchHttpCollector', () => {
       collector.processLogsJson(logsJson);
       expect(logsJson).toMatchSnapshot();
     });
+
+    it('should process kubernetes logs', () => {
+      const logsJson = kubernetesLogSample();
+      collector.processLogsJson(logsJson);
+      expect(logsJson).toMatchSnapshot();
+    });
+
+    it('should modify unsupported special characters in keys to support LINT', () => {
+      const logsJson = {
+        logEvents: [
+          {
+            id: 'id1',
+            text: ' { "field2/": "value2", "field3.": "abCkKKkcde" } ',
+          },
+        ],
+      };
+
+      collector.processLogsJson(logsJson);
+      expect(logsJson).toMatchSnapshot();
+    });
   });
 
   describe('sendLogs', () => {
@@ -142,6 +163,7 @@ describe('CloudWatchHttpCollector', () => {
           {
             id: 'id1',
             field1: 'value1',
+            log_type: 'aws_cloud_watch',
           },
         ],
         ingest_timestamp: 1538769915817,

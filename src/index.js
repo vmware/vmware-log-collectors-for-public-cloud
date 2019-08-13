@@ -11,7 +11,10 @@ const {
   LIntHttpEnv,
   Collector,
   flattenJson,
+  shortenKey,
 } = require('./lint');
+
+const logTextKeys = ['log', 'message', 'msg'];
 
 /* eslint-disable no-param-reassign */
 const flattenUserIdentity = (record) => {
@@ -22,13 +25,14 @@ const flattenUserIdentity = (record) => {
     }
     delete record.userIdentity;
   }
-}
+};
 
 /* eslint-disable no-param-reassign */
 const processCloudTrailLogs = (cloudTrailLogRecords) => {
   const ingestionTime = Date.now();
   for (const record of cloudTrailLogRecords) {
     record.ingest_timestamp = ingestionTime;
+    record.log_type = 'aws_cloud_trail';
     flattenUserIdentity(record);
   }
 };
@@ -85,15 +89,45 @@ const extractTags = (logText, tagRegexMap) => {
 };
 
 const processLogTextAsJson = (logText) => {
+  const keys = [];
+  const mergedRecords = {};
+  let log = '';
   try {
     let textJson = JSON.parse(logText);
     textJson = flattenJson(textJson);
+    console.log(textJson);
     if ((textJson.timestamp) &&
         (typeof textJson.timestamp === 'string')) {
       const numericTimestamp = parseInt(textJson.timestamp, 10);
       textJson.timestamp = numericTimestamp || textJson.timestamp;
     }
-    return textJson;
+    Object.keys(textJson).forEach((key) => {
+      console.log(key);
+      let value = textJson[key];
+      if (value != null) {
+        key = shortenKey(key);
+        if (typeof keys[key] !== 'undefined') {
+          value = `${mergedRecords[key]} ${value}`;
+        }
+        keys.push(key);
+      }
+      if (logTextKeys.includes(key)) {
+        if (log !== value) {
+          if (log === '') {
+            log = value;
+          } else {
+            log = `${log}${value}`;
+          }
+        }
+      } else {
+        mergedRecords[key] = value;
+      }
+    });
+    console.log(log);
+    if (log !== '') {
+      mergedRecords.text = log;
+    }
+    return mergedRecords;
   } catch (e) {
     return {};
   }
@@ -102,6 +136,7 @@ const processLogTextAsJson = (logText) => {
 /* eslint-disable no-param-reassign */
 const processLogText = (cloudWatchLogs, tagRegexMap) => {
   for (const logEvent of cloudWatchLogs.logEvents) {
+    logEvent.log_type = 'aws_cloud_watch';
     if ((logEvent.message) && (!logEvent.text)) {
       logEvent.text = logEvent.message;
       delete logEvent.message;

@@ -10,13 +10,13 @@ Object {
 
 exports[`flattenJson should flatten nested arrays and objects 1`] = `
 Object {
-  "field1.field11": "value11",
-  "field1.field12": "value12",
+  "field1_field11": "value11",
+  "field1_field12": "value12",
   "field2": "value2",
   "field3": 3,
-  "field4.field41.0": "a",
-  "field4.field41.1": "b",
-  "field4.field41.2": "c",
+  "field4_field41_0": "a",
+  "field4_field41_1": "b",
+  "field4_field41_2": "c",
 }
 `;
 
