@@ -6,6 +6,7 @@ Object {
   "logEvents": Array [
     Object {
       "id": "id1",
+      "log_type": "aws_cloud_watch",
       "tag1": "ckkkkc",
       "text": Array [
         Object {
@@ -23,6 +24,7 @@ Object {
   "logEvents": Array [
     Object {
       "id": "id1",
+      "log_type": "aws_cloud_watch",
       "tag1": "CkKKkc",
       "text": "abCkKKkcde",
     },
@@ -38,6 +40,7 @@ Object {
       "field2": "value2",
       "field3": "abCkKKkcde",
       "id": "id1",
+      "log_type": "aws_cloud_watch",
       "tag1": "CkKKkc",
       "text": " { \\"field2\\": \\"value2\\", \\"field3\\": \\"abCkKKkcde\\" } ",
     },
@@ -52,10 +55,56 @@ Object {
     Object {
       "field3": "value3",
       "id": "id1",
+      "log_type": "aws_cloud_watch",
       "text": " { \\"timestamp\\": \\"1234\\", \\"field3\\": \\"value3\\" } ",
       "timestamp": 1234,
     },
   ],
+}
+`;
+
+exports[`CloudWatchHttpCollector processLogsJson should modify unsupported special characters in keys to support LINT 1`] = `
+Object {
+  "ingest_timestamp": 1538769915817,
+  "logEvents": Array [
+    Object {
+      "field2_": "value2",
+      "field3_": "abCkKKkcde",
+      "id": "id1",
+      "log_type": "aws_cloud_watch",
+      "tag1": "CkKKkc",
+      "text": " { \\"field2/\\": \\"value2\\", \\"field3.\\": \\"abCkKKkcde\\" } ",
+    },
+  ],
+}
+`;
+
+exports[`CloudWatchHttpCollector processLogsJson should process kubernetes logs 1`] = `
+Object {
+  "ingest_timestamp": 1538769915817,
+  "logEvents": Array [
+    Object {
+      "docker_container_id": "5b15e87886a7ca5f7ebc73a15aa9091c9c0f880ee2974515749e16710367462c",
+      "id": "34051922485820161636472577410016310394916410432944603138",
+      "kubernetes_container_name": "weave",
+      "kubernetes_host": "kube-234",
+      "kubernetes_labels_controller-revision-hash": "2720543195",
+      "kubernetes_labels_name": "weave-net",
+      "kubernetes_labels_pod-template-generation": "1",
+      "kubernetes_master_url": "https://10.96.0.1:443/api",
+      "kubernetes_namespace_name": "kube-system",
+      "kubernetes_pod_id": "ac4bdfc1-9dc0-11e7-8b62-005056b549b6",
+      "kubernetes_pod_name": "weave-net-4n4kc",
+      "log_type": "aws_cloud_watch",
+      "stream": "stderr",
+      "text": "INFO: 2017/10/02 06:44:13.214543 Discovered remote MAC 62:a1:3d:f6:eb:65 at 62:a1:3d:f6:eb:65(kube-235)
+",
+    },
+  ],
+  "logGroup": "/aws/lambda/runbook",
+  "logStream": "unittest8",
+  "messageType": "DATA_MESSAGE",
+  "owner": "792677813823",
 }
 `;
 
@@ -65,16 +114,19 @@ Object {
   "logEvents": Array [
     Object {
       "id": "34051922485820161636472577410016310394916410432944603138",
+      "log_type": "aws_cloud_watch",
       "text": "2018-05-21T22:16:53.934Z	aab15e49-5d44-11e8-a7db-afa704cec35a	Status: 200
 ",
     },
     Object {
       "id": "001",
+      "log_type": "aws_cloud_watch",
       "message": "message of 001",
       "text": "text of 001",
     },
     Object {
       "id": "34051922485820161636472577410016310394916410432944603138",
+      "log_type": "aws_cloud_watch",
       "text": Array [
         Object {
           "fielda": "fielda",
@@ -97,16 +149,19 @@ Object {
   "logs": Array [
     Object {
       "id": "34051922485820161636472577410016310394916410432944603138",
+      "log_type": "aws_cloud_watch",
       "text": "2018-05-21T22:16:53.934Z	aab15e49-5d44-11e8-a7db-afa704cec35a	Status: 200
 ",
     },
     Object {
       "id": "001",
+      "log_type": "aws_cloud_watch",
       "message": "message of 001",
       "text": "text of 001",
     },
     Object {
       "id": "34051922485820161636472577410016310394916410432944603138",
+      "log_type": "aws_cloud_watch",
       "text": Array [
         Object {
           "fielda": "fielda",
@@ -122,12 +177,12 @@ Object {
 
 exports[`processLogTextAsJson should process log text in JSON format 1`] = `
 Object {
-  "field1.field11": "value11",
-  "field1.field12": "value12",
+  "field1_field11": "value11",
+  "field1_field12": "value12",
   "field2": "value2",
   "field3": 3,
-  "field4.field41.0": "a",
-  "field4.field41.1": "b",
-  "field4.field41.2": "c",
+  "field4_field41_0": "a",
+  "field4_field41_1": "b",
+  "field4_field41_2": "c",
 }
 `;

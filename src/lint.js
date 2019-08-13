@@ -7,6 +7,8 @@ const zlib = require('zlib');
 const url = require('url');
 const https = require('https');
 
+const flattenJsonSeperator = '_';
+
 class LIntKafkaEnv {
   constructor(authToken, kafkaStreamURL) {
     this.authToken = authToken;
@@ -102,7 +104,7 @@ class Collector {
 const flattenJson = (jsonObject, parentKey = null, level = 1, result = {}) => {
   Object.keys(jsonObject).forEach((fieldKey) => {
     const fieldValue = jsonObject[fieldKey];
-    const newFieldKey = parentKey ? `${parentKey}.${fieldKey}` : fieldKey;
+    const newFieldKey = parentKey ? `${parentKey}${flattenJsonSeperator}${fieldKey}` : fieldKey;
 
     if ((level < 8) && (fieldValue instanceof Object)) { // 8 is the max level
       flattenJson(fieldValue, newFieldKey, level + 1, result);
@@ -114,7 +116,13 @@ const flattenJson = (jsonObject, parentKey = null, level = 1, result = {}) => {
   return result;
 };
 
+const shortenKey = (key) => {
+  key = key.replace(/[\\/\\.\\-\\\\]/, flattenJsonSeperator);
+  return key;
+};
+
 module.exports = {
+  shortenKey,
   flattenJson,
   sendHttpRequest,
   gzipLogs,
