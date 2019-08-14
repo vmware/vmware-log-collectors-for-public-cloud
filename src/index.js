@@ -28,6 +28,19 @@ const flattenUserIdentity = (record) => {
 };
 
 /* eslint-disable no-param-reassign */
+const flattenKinesesObject = (record) => {
+  if (record.kinesis) {
+    for (const property of Object.keys(record.kinesis)) {
+      const newPropName = `kinesis_${property}`;
+      record[newPropName] = record.kinesis[property];
+    }
+    record.text = Buffer.from(record.kinesis_data, 'base64').toString('utf-8');
+    delete record.kinesis;
+    delete record.kinesis_data;
+  }
+};
+
+/* eslint-disable no-param-reassign */
 const processCloudTrailLogs = (cloudTrailLogRecords) => {
   const ingestionTime = Date.now();
   for (const record of cloudTrailLogRecords) {
@@ -95,14 +108,12 @@ const processLogTextAsJson = (logText) => {
   try {
     let textJson = JSON.parse(logText);
     textJson = flattenJson(textJson);
-    console.log(textJson);
     if ((textJson.timestamp) &&
-        (typeof textJson.timestamp === 'string')) {
+      (typeof textJson.timestamp === 'string')) {
       const numericTimestamp = parseInt(textJson.timestamp, 10);
       textJson.timestamp = numericTimestamp || textJson.timestamp;
     }
     Object.keys(textJson).forEach((key) => {
-      console.log(key);
       let value = textJson[key];
       if (value != null) {
         key = shortenKey(key);
@@ -123,7 +134,6 @@ const processLogTextAsJson = (logText) => {
         mergedRecords[key] = value;
       }
     });
-    console.log(log);
     if (log !== '') {
       mergedRecords.text = log;
     }
@@ -149,6 +159,33 @@ const processLogText = (cloudWatchLogs, tagRegexMap) => {
     }
   }
 };
+
+/* eslint-disable no-param-reassign */
+const processKinesislLogs = (kinesisLogRecords) => {
+  const ingestionTime = Date.now();
+  for (const record of kinesisLogRecords) {
+    record.ingest_timestamp = ingestionTime;
+    record.log_type = 'aws_kinesis';
+    flattenKinesesObject(record);
+    const textJson = processLogTextAsJson(record.text);
+    Object.assign(record, textJson);
+  }
+};
+
+class KinesisHttpCollector extends Collector {
+  constructor(lintEnv) {
+    super('simple', lintEnv);
+  }
+
+  /* eslint-disable no-param-reassign */
+  processLogsJson(logsJson) {
+    if (!logsJson.Records) {
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
+    }
+    processKinesislLogs(logsJson.Records, this.tagRegexMap);
+    return JSON.stringify(logsJson.Records);
+  }
+}
 
 class CloudWatchHttpCollector extends Collector {
   constructor(lintEnv, tagRegexMap) {
@@ -187,6 +224,11 @@ class CloudWatchKafkaCollector extends Collector {
 const sendLogs = (zippedLogs, collector) => gunzipData(zippedLogs)
   .then(unzippedData => collector.processLogsJson(JSON.parse(unzippedData.toString('utf-8'))))
   .then(data => collector.postDataToStream(data));
+
+const sendKinesisLogs = (kinesisLogs, collector) => {
+  const data = collector.processLogsJson(kinesisLogs);
+  return collector.postDataToStream(data);
+};
 
 const handleResult = (result, context) => {
   context.succeed();
@@ -227,6 +269,24 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
     .catch(error => handleError(error, context));
 };
 
+const handleKinesisLogs = (event, context, lintEnv) => {
+  const collector = new KinesisHttpCollector(lintEnv);
+  if (!event.Records) {
+    throw new Error('JSON blob does not have log records. Skip processing the blob.');
+  }
+  sendKinesisLogs(event, collector)
+    .then(result => handleResult(result, context))
+    .catch(error => handleError(error, context));
+};
+
+const handleRecords = (event, context, lintEnv) => {
+  if (event.Records[0].kinesis) {
+    handleKinesisLogs(event, context, lintEnv);
+  } else {
+    handleCloudTrailLogs(event, context, lintEnv);
+  }
+};
+
 const handler = (event, context) => {
   const apiToken = process.env.LogIntelligence_API_Token;
   if (!apiToken) {
@@ -250,7 +310,7 @@ const handler = (event, context) => {
   }
 
   if (event.Records) {
-    handleCloudTrailLogs(event, context, lintEnv);
+    handleRecords(event, context, lintEnv);
   }
 };
 
@@ -261,5 +321,7 @@ module.exports = {
   CloudTrailKafkaCollector,
   CloudWatchHttpCollector,
   CloudWatchKafkaCollector,
+  KinesisHttpCollector,
   processLogTextAsJson,
+  sendKinesisLogs,
 };
