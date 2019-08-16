@@ -19,9 +19,20 @@ The following sections describe each of the above two steps in detail.
 5. Copy the code in index.js and paste it into the index.js code file of the Lambda function.
 
 ### Configure the Lambda function
-1. In the AWS Web Console, configure an environment variable for the Lambda function. The key of the environment variable should be 'LogIntelligence_API_Token'. The value of the environment variable should be a valid VMware Log Intelligence API token.
-2. If you want to collect CloudWatch logs, then in the AWS Web Console, add a 'CloudWatch Logs' trigger for the Lambda function. In the configurations of the trigger, specify the CloudWatch log group whose logs you want to collect and send to VMware Log Intelligence. You can add more 'CloudWatch Logs' triggers if you want to send logs of multiple log groups through the Lambda function to VMware Log Intelligence.
-3. If you want to collect CloudTrail logs, then you need to configure CloudTrail to send logs to an S3 bucket. Then in the AWS Web Console, add an 'S3' trigger for the Lambda function. In the configurations of the trigger, specify the S3 bucket to which the CloudTrail logs are sent. Once the trigger is configured and enabled, whenever logs go from CloudTrail to the S3 bucket, the Lambda function will be invoked and the logs will be sent to VMware Log Intelligence. You can refer to https://docs.aws.amazon.com/lambda/latest/dg/with-cloudtrail.html for more details.
+In the AWS Web Console, configure an environment variable for the Lambda function. The key of the environment variable should be 'LogIntelligence_API_Token'. The value of the environment variable should be a valid VMware Log Intelligence API token.
+
+#### 1. CloudWatch Logs
+In AWS Web Console, add a 'CloudWatch Logs' trigger for the Lambda function. In the configurations of the trigger, specify the CloudWatch log group whose logs you want to collect and send to VMware Log Intelligence. You can add more 'CloudWatch Logs' triggers if you want to send logs of multiple log groups through the Lambda function to VMware Log Intelligence.
+
+#### 2. CloudTrail Logs
+If you want to collect CloudTrail logs, then you need to configure CloudTrail to send logs to an S3 bucket. Then in the AWS Web Console, add an 'S3' trigger for the Lambda function. In the configurations of the trigger, specify the S3 bucket to which the CloudTrail logs are sent. Once the trigger is configured and enabled, whenever logs go from CloudTrail to the S3 bucket, the Lambda function will be invoked and the logs will be sent to VMware Log Intelligence. You can refer to https://docs.aws.amazon.com/lambda/latest/dg/with-cloudtrail.html for more details.
+
+#### 3. S3 data
+Amazon S3 can publish events (for example, when an object is created in a bucket) to AWS Lambda and invoke your Lambda function by passing the event data as a parameter
+This lambda captures all the Object events like CREATED, DELETED etc. which are provided by AWS 
+S3 bucket console. Once the bucket is ready we need to add necessary permissions to lambda to
+get access to the s3 bucket and add it as a trigger. https://docs.aws.amazon.com/lambda/latest/dg/with-s3.html
+The page describes the process of adding trigger and function roles required for lambda.
 
 ## Contributing
 

@@ -28,6 +28,28 @@ const flattenUserIdentity = (record) => {
 };
 
 /* eslint-disable no-param-reassign */
+const flattenRequestParameters = (record) => {
+  if (record.requestParameters) {
+    for (const property of Object.keys(record.requestParameters)) {
+      const newPropName = `requestParameters_${property.charAt(0).toUpperCase()}${property.substr(1)}`;
+      record[newPropName] = record.requestParameters[property];
+    }
+    delete record.requestParameters;
+  }
+};
+
+/* eslint-disable no-param-reassign */
+const flattenResponseElements = (record) => {
+  if (record.responseElements) {
+    for (const property of Object.keys(record.responseElements)) {
+      const newPropName = `responseElements_${property.charAt(0).toUpperCase()}${property.substr(1)}`;
+      record[newPropName] = record.responseElements[property];
+    }
+    delete record.responseElements;
+  }
+};
+
+/* eslint-disable no-param-reassign */
 const processCloudTrailLogs = (cloudTrailLogRecords) => {
   const ingestionTime = Date.now();
   for (const record of cloudTrailLogRecords) {
@@ -95,14 +117,12 @@ const processLogTextAsJson = (logText) => {
   try {
     let textJson = JSON.parse(logText);
     textJson = flattenJson(textJson);
-    console.log(textJson);
     if ((textJson.timestamp) &&
         (typeof textJson.timestamp === 'string')) {
       const numericTimestamp = parseInt(textJson.timestamp, 10);
       textJson.timestamp = numericTimestamp || textJson.timestamp;
     }
     Object.keys(textJson).forEach((key) => {
-      console.log(key);
       let value = textJson[key];
       if (value != null) {
         key = shortenKey(key);
@@ -123,7 +143,6 @@ const processLogTextAsJson = (logText) => {
         mergedRecords[key] = value;
       }
     });
-    console.log(log);
     if (log !== '') {
       mergedRecords.text = log;
     }
@@ -132,6 +151,37 @@ const processLogTextAsJson = (logText) => {
     return {};
   }
 };
+
+/* eslint-disable no-param-reassign */
+const processS3Logs = (s3LogRecords) => {
+  const ingestionTime = Date.now();
+  for (const record of s3LogRecords) {
+    record.ingest_timestamp = ingestionTime;
+    record.log_type = 'aws_s3';
+    flattenUserIdentity(record);
+    flattenRequestParameters(record);
+    flattenResponseElements(record);
+    const textJson = processLogTextAsJson(JSON.stringify(record.s3));
+    textJson.text = record.s3;
+    delete record.s3;
+    Object.assign(record, textJson);
+  }
+};
+
+class S3HttpCollector extends Collector {
+  constructor(lintEnv) {
+    super('simple', lintEnv);
+  }
+
+  /* eslint-disable no-param-reassign */
+  processLogsJson(logsJson) {
+    if (!logsJson.Records) {
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
+    }
+    processS3Logs(logsJson.Records);
+    return JSON.stringify(logsJson.Records);
+  }
+}
 
 /* eslint-disable no-param-reassign */
 const processLogText = (cloudWatchLogs, tagRegexMap) => {
@@ -184,6 +234,11 @@ class CloudWatchKafkaCollector extends Collector {
   }
 }
 
+const sendS3Logs = (s3Logs, collector) => {
+  const data = collector.processLogsJson(s3Logs);
+  return collector.postDataToStream(data);
+};
+
 const sendLogs = (zippedLogs, collector) => gunzipData(zippedLogs)
   .then(unzippedData => collector.processLogsJson(JSON.parse(unzippedData.toString('utf-8'))))
   .then(data => collector.postDataToStream(data));
@@ -227,6 +282,21 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
     .catch(error => handleError(error, context));
 };
 
+const handleS3logs = (event, context, lintEnv) => {
+  const collector = new S3HttpCollector(lintEnv);
+  sendS3Logs(event, collector)
+    .then(result => handleResult(result, context))
+    .catch(error => handleError(error, context));
+};
+
+const handleRecords = (event, context, lintEnv) => {
+  if (event.Records[0].eventSource === 'aws:s3') {
+    handleS3logs(event, context, lintEnv);
+  } else {
+    handleCloudTrailLogs(event, context, lintEnv);
+  }
+};
+
 const handler = (event, context) => {
   const apiToken = process.env.LogIntelligence_API_Token;
   if (!apiToken) {
@@ -250,7 +320,7 @@ const handler = (event, context) => {
   }
 
   if (event.Records) {
-    handleCloudTrailLogs(event, context, lintEnv);
+    handleRecords(event, context, lintEnv);
   }
 };
 
@@ -261,5 +331,6 @@ module.exports = {
   CloudTrailKafkaCollector,
   CloudWatchHttpCollector,
   CloudWatchKafkaCollector,
+  S3HttpCollector,
   processLogTextAsJson,
 };
