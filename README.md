@@ -34,6 +34,17 @@ https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html This page explains th
 complete process on how to add trigger dynamoDB to lambda and adding appropriate 
 execution roles to access dynamoDB.
 
+#### 4. SQS data
+We can use a AWS Lambda function to process data which is pushed to Amazon SQS. With Amazon SQS, you can offload tasks from one component of your application by sending them to a queue and processing them asynchronously.
+Lambda polls the queue and invokes your function synchronously with an event that contains queue messages. Lambda reads messages in batches and invokes your function once for each batch. When your function successfully processes a batch, Lambda deletes its messages from the queue.
+https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html This link helps in setting up SQS queue
+and adding it as a trigger to our lambda function.
+
+#### 5. Kinesis data
+First you need to have kinesis stream created in AWS. From the stream created a producer should be registered which pushes the data to kinesis stream. You can build producers for Kinesis Data Streams using the AWS SDK for Java and the Kinesis Producer Library. 
+Define specific roles for the kinesis stream to fetch the necessary data. Once the stream is ready we 
+can you see this to add trigger to our lambda function. From creating streams to creating producers and pushing data to stream is described here https://docs.aws.amazon.com/streams/latest/dev/introduction.html.
+
 ## Contributing
 
 The vmware-log-collectors-for-aws project team welcomes contributions from the community. Before you start working with vmware-log-collectors-for-aws, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch. For more detailed information, refer to [CONTRIBUTING.md](CONTRIBUTING.md).

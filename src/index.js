@@ -28,6 +28,30 @@ const flattenUserIdentity = (record) => {
 };
 
 /* eslint-disable no-param-reassign */
+const flattenAttributes = (record) => {
+  if (record.attributes) {
+    for (const property of Object.keys(record.attributes)) {
+      const newPropName = `attributes_${property}`;
+      record[newPropName] = record.attributes[property];
+    }
+    delete record.attributes;
+  }
+};
+
+/* eslint-disable no-param-reassign */
+const flattenKinesesObject = (record) => {
+  if (record.kinesis) {
+    for (const property of Object.keys(record.kinesis)) {
+      const newPropName = `kinesis_${property}`;
+      record[newPropName] = record.kinesis[property];
+    }
+    record.text = Buffer.from(record.kinesis_data, 'base64').toString('utf-8');
+    delete record.kinesis;
+    delete record.kinesis_data;
+  }
+};
+
+/* eslint-disable no-param-reassign */
 const processCloudTrailLogs = (cloudTrailLogRecords) => {
   const ingestionTime = Date.now();
   for (const record of cloudTrailLogRecords) {
@@ -48,6 +72,16 @@ const processDynamoDBLogs = (dynamoDBLogRecords) => {
   }
 };
 
+const processSQSLogs = (SQSLogRecords) => {
+  const ingestionTime = Date.now();
+  for (const record of SQSLogRecords) {
+    record.ingest_timestamp = ingestionTime;
+    record.log_type = 'aws_sqs';
+    record.text = record.body;
+    delete record.body;
+    flattenAttributes(record);
+  }
+};
 
 class CloudTrailHttpCollector extends Collector {
   constructor(lintEnv) {
@@ -123,14 +157,12 @@ const processLogTextAsJson = (logText) => {
   try {
     let textJson = JSON.parse(logText);
     textJson = flattenJson(textJson);
-    console.log(textJson);
     if ((textJson.timestamp) &&
-        (typeof textJson.timestamp === 'string')) {
+      (typeof textJson.timestamp === 'string')) {
       const numericTimestamp = parseInt(textJson.timestamp, 10);
       textJson.timestamp = numericTimestamp || textJson.timestamp;
     }
     Object.keys(textJson).forEach((key) => {
-      console.log(key);
       let value = textJson[key];
       if (value != null) {
         key = shortenKey(key);
@@ -151,7 +183,6 @@ const processLogTextAsJson = (logText) => {
         mergedRecords[key] = value;
       }
     });
-    console.log(log);
     if (log !== '') {
       mergedRecords.text = log;
     }
@@ -177,6 +208,54 @@ const processLogText = (cloudWatchLogs, tagRegexMap) => {
     }
   }
 };
+
+const sendSQSLogs = (SQSLogs, collector) => {
+  const data = collector.processLogsJson(SQSLogs);
+  return collector.postDataToStream(data);
+};
+
+class SQSHttpCollector extends Collector {
+  constructor(lintEnv) {
+    super('simple', lintEnv);
+  }
+
+  /* eslint-disable no-param-reassign */
+  processLogsJson(logsJson) {
+    if (!logsJson.Records) {
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
+    }
+
+    processSQSLogs(logsJson.Records);
+    return JSON.stringify(logsJson.Records);
+  }
+}
+/* eslint-disable no-param-reassign */
+const processKinesislLogs = (kinesisLogRecords) => {
+  const ingestionTime = Date.now();
+  for (const record of kinesisLogRecords) {
+    record.ingest_timestamp = ingestionTime;
+    record.log_type = 'aws_kinesis';
+    flattenKinesesObject(record);
+    const textJson = processLogTextAsJson(record.text);
+    Object.assign(record, textJson);
+  }
+};
+
+class KinesisHttpCollector extends Collector {
+  constructor(lintEnv) {
+    super('simple', lintEnv);
+  }
+
+  /* eslint-disable no-param-reassign */
+  processLogsJson(logsJson) {
+    if (!logsJson.Records) {
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
+    }
+
+    processKinesislLogs(logsJson.Records, this.tagRegexMap);
+    return JSON.stringify(logsJson.Records);
+  }
+}
 
 class CloudWatchHttpCollector extends Collector {
   constructor(lintEnv, tagRegexMap) {
@@ -221,6 +300,11 @@ const sendDynamoDBLogs = (dynameDBLogs, collector) => {
   return collector.postDataToStream(data);
 };
 
+const sendKinesisLogs = (kinesisLogs, collector) => {
+  const data = collector.processLogsJson(kinesisLogs);
+  return collector.postDataToStream(data);
+};
+
 const handleResult = (result, context) => {
   context.succeed();
   console.log(result);
@@ -262,7 +346,20 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
 
 const handleDynamoDBlogs = (event, context, lintEnv) => {
   const collector = new DynamoDBHttpCollector(lintEnv);
-  sendDynamoDBLogs(event, collector)
+  sendDynamoDBLogs(event, collector);
+};
+
+const handleSQSlogs = (event, context, lintEnv) => {
+  const collector = new SQSHttpCollector(lintEnv);
+  sendSQSLogs(event, collector);
+};
+
+const handleKinesisLogs = (event, context, lintEnv) => {
+  const collector = new KinesisHttpCollector(lintEnv);
+  if (!event.Records) {
+    throw new Error('JSON blob does not have log records. Skip processing the blob.');
+  }
+  sendKinesisLogs(event, collector)
     .then(result => handleResult(result, context))
     .catch(error => handleError(error, context));
 };
@@ -270,6 +367,10 @@ const handleDynamoDBlogs = (event, context, lintEnv) => {
 const handleRecords = (event, context, lintEnv) => {
   if (event.Records[0].dynamodb) {
     handleDynamoDBlogs(event, context, lintEnv);
+  } else if (event.Records[0].eventSource === 'aws:sqs') {
+    handleSQSlogs(event, context, lintEnv);
+  } else if (event.Records[0].kinesis) {
+    handleKinesisLogs(event, context, lintEnv);
   } else {
     handleCloudTrailLogs(event, context, lintEnv);
   }
@@ -310,5 +411,8 @@ module.exports = {
   CloudWatchHttpCollector,
   CloudWatchKafkaCollector,
   DynamoDBHttpCollector,
+  SQSHttpCollector,
+  KinesisHttpCollector,
   processLogTextAsJson,
+  sendKinesisLogs,
 };

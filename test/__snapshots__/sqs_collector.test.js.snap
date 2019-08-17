@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SQSHttpCollector processLogsJson should process logs JSON 1`] = `
+Object {
+  "Records": Array [
+    Object {
+      "attributes_ApproximateFirstReceiveTimestamp": "1545082649185",
+      "attributes_ApproximateReceiveCount": "1",
+      "attributes_SenderId": "AIDAIENQZJOLO23YVJ4VO",
+      "attributes_SentTimestamp": "1545082649183",
+      "awsRegion": "us-east-2",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-2:123456789012:my-queue",
+      "ingest_timestamp": 1538769915817,
+      "log_type": "aws_sqs",
+      "md5OfBody": "098f6bcd4621d373cade4e832627b4f6",
+      "messageAttributes": Object {},
+      "messageId": "059f36b4-87a3-44ab-83d2-661975830a7d",
+      "receiptHandle": "AQEBwJnKyrHigUMZj6rYigCgxlaS3SLy0a...",
+      "text": "This is first message",
+    },
+    Object {
+      "attributes_ApproximateFirstReceiveTimestamp": "1545082650649",
+      "attributes_ApproximateReceiveCount": "1",
+      "attributes_SenderId": "AIDAIENQZJOLO23YVJ4VO",
+      "attributes_SentTimestamp": "1545082650636",
+      "awsRegion": "us-east-2",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-2:123456789012:my-queue",
+      "ingest_timestamp": 1538769915817,
+      "log_type": "aws_sqs",
+      "md5OfBody": "098f6bcd4621d373cade4e832627b4f6",
+      "messageAttributes": Object {},
+      "messageId": "2e1424d4-f796-459a-8184-9c92662be6da",
+      "receiptHandle": "AQEBzWwaftRI0KuVm4tP+/7q1rGgNqicHq...",
+      "text": "This is second message",
+    },
+  ],
+}
+`;
