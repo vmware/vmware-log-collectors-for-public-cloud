@@ -4,7 +4,7 @@ SPDX-License-Identifier: MIT
 */
 
 const { lintTestEnv } = require('../test/helper.test');
-const { SQSsample } = require('../test/sqs_testdata');
+const { SQSsample } = require('./sample_files/sqs_testdata');
 
 const {
   SQSHttpCollector,

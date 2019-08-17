@@ -4,7 +4,7 @@ SPDX-License-Identifier: MIT
 */
 
 const { lintTestEnv } = require('../test/helper.test');
-const { kinesisSample1 } = require('../test/kinesis_testdata');
+const { kinesisSample1 } = require('./sample_files/kinesis_testdata');
 
 const {
   KinesisHttpCollector,

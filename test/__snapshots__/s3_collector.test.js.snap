@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`S3HttpCollector processLogsJson should process logs JSON 1`] = `
+Object {
+  "Records": Array [
+    Object {
+      "awsRegion": "us-west-2",
+      "bucket_arn": "arn:aws:s3:::sourcebucket",
+      "bucket_name": "sourcebucket",
+      "bucket_ownerIdentity_principalId": "A3NL1KOZZKExample",
+      "configurationId": "testConfigRule",
+      "eventName": "ObjectCreated:Put",
+      "eventSource": "aws:s3",
+      "eventTime": "1970-01-01T00:00:00.000Z",
+      "eventVersion": "2.0",
+      "ingest_timestamp": 1538769915817,
+      "log_type": "aws_s3",
+      "object_eTag": "d41d8cd98f00b204e9800998ecf8427e",
+      "object_key": "HappyFace.jpg",
+      "object_size": 1024,
+      "object_versionId": "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+      "requestParameters_SourceIPAddress": "127.0.0.1",
+      "responseElements_Xamzid2": "FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpD",
+      "responseElements_Xamzrequestid": "C3D13FE58DE4C810",
+      "s3SchemaVersion": "1.0",
+      "text": Object {
+        "bucket": Object {
+          "arn": "arn:aws:s3:::sourcebucket",
+          "name": "sourcebucket",
+          "ownerIdentity": Object {
+            "principalId": "A3NL1KOZZKExample",
+          },
+        },
+        "configurationId": "testConfigRule",
+        "object": Object {
+          "eTag": "d41d8cd98f00b204e9800998ecf8427e",
+          "key": "HappyFace.jpg",
+          "size": 1024,
+          "versionId": "096fKKXTRTtl3on89fVO.nfljtsv6qko",
+        },
+        "s3SchemaVersion": "1.0",
+      },
+      "userIdentityPrincipalId": "AIDAJDPLRKLG7UEXAMPLE",
+    },
+  ],
+}
+`;
