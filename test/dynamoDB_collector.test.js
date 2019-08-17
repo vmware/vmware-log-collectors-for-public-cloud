@@ -4,25 +4,23 @@ SPDX-License-Identifier: MIT
 */
 
 const { lintTestEnv } = require('../test/helper.test');
-const { s3SampleData } = require('./sample_files/s3_testdata');
+const { dynamoDBSample } = require('./sample_files/dynamoDB_testdata');
 
 const {
-  S3HttpCollector,
+  DynamoDBHttpCollector,
 } = require('../src/index');
 
-describe('S3HttpCollector', () => {
+describe('DynamoDBHttpCollector', () => {
   const tagRegexMap = new Map(Object.entries({
     tag1: new RegExp('c(k+)c', 'i'),
   }));
-  const collector = new S3HttpCollector(lintTestEnv, tagRegexMap);
+  const collector = new DynamoDBHttpCollector(lintTestEnv, tagRegexMap);
 
   describe('processLogsJson', () => {
     it('should process logs JSON', () => {
-      const logsJson = s3SampleData();
+      const logsJson = dynamoDBSample();
       collector.processLogsJson(logsJson);
-      expect(logsJson)
-        .toMatchSnapshot();
+      expect(logsJson).toMatchSnapshot();
     });
   });
 });
-

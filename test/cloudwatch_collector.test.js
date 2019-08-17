@@ -4,8 +4,8 @@ SPDX-License-Identifier: MIT
 */
 
 const { lintTestEnv, sendLogsAndVerify } = require('../test/helper.test');
-const { createSample1 } = require('../test/cloudwatch_testdata');
-const { kubernetesLogSample } = require('../test/cloudwatch_testdata');
+const { createSample1 } = require('./sample_files/cloudwatch_testdata');
+const { kubernetesLogSample } = require('./sample_files/cloudwatch_testdata');
 
 const {
   CloudWatchHttpCollector,

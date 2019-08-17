@@ -4,7 +4,7 @@ SPDX-License-Identifier: MIT
 */
 
 const { lintTestEnv, sendLogsAndVerify } = require('../test/helper.test');
-const { createSample1 } = require('../test/cloudtrail_testdata');
+const { createSample1 } = require('./sample_files/cloudtrail_testdata');
 
 const {
   CloudTrailHttpCollector,

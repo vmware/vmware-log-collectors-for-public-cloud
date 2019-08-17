@@ -4,25 +4,22 @@ SPDX-License-Identifier: MIT
 */
 
 const { lintTestEnv } = require('../test/helper.test');
-const { s3SampleData } = require('./sample_files/s3_testdata');
+const { SQSsample } = require('./sample_files/sqs_testdata');
 
 const {
-  S3HttpCollector,
+  SQSHttpCollector,
 } = require('../src/index');
 
-describe('S3HttpCollector', () => {
-  const tagRegexMap = new Map(Object.entries({
-    tag1: new RegExp('c(k+)c', 'i'),
-  }));
-  const collector = new S3HttpCollector(lintTestEnv, tagRegexMap);
+
+describe('SQSHttpCollector', () => {
+  const collector = new SQSHttpCollector(lintTestEnv);
 
   describe('processLogsJson', () => {
     it('should process logs JSON', () => {
-      const logsJson = s3SampleData();
+      const logsJson = SQSsample();
       collector.processLogsJson(logsJson);
       expect(logsJson)
         .toMatchSnapshot();
     });
   });
 });
-
