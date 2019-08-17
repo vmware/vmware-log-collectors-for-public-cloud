@@ -33,6 +33,11 @@ Lambda polls the queue and invokes your function synchronously with an event tha
 https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html This link helps in setting up SQS queue
 and adding it as a trigger to our lambda function.
 
+#### 4. Kinesis data
+First you need to have kinesis stream created in AWS. From the stream created a producer should be registered which pushes the data to kinesis stream. You can build producers for Kinesis Data Streams using the AWS SDK for Java and the Kinesis Producer Library. 
+Define specific roles for the kinesis stream to fetch the necessary data. Once the stream is ready we 
+can you see this to add trigger to our lambda function. From creating streams to creating producers and pushing data to stream is described here https://docs.aws.amazon.com/streams/latest/dev/introduction.html.
+
 ## Contributing
 
 The vmware-log-collectors-for-aws project team welcomes contributions from the community. Before you start working with vmware-log-collectors-for-aws, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch. For more detailed information, refer to [CONTRIBUTING.md](CONTRIBUTING.md).

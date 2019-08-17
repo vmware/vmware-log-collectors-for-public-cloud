@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`KinesisHttpCollector processLogsJson should process logs JSON 1`] = `
+Object {
+  "Records": Array [
+    Object {
+      "awsRegion": "us-east-2",
+      "currentTemperature": 76,
+      "eventID": "shardId-000000000006:49590338271490256608559692538361571095921575989136588898",
+      "eventName": "aws:kinesis:record",
+      "eventSource": "aws:kinesis",
+      "eventSourceARN": "arn:aws:kinesis:us-east-2:123456789012:stream/lambda-stream",
+      "eventVersion": "1.0",
+      "ingest_timestamp": 1538769915817,
+      "invokeIdentityArn": "arn:aws:iam::123456789012:role/lambda-kinesis-role",
+      "kinesis_approximateArrivalTimestamp": 1545084650.987,
+      "kinesis_kinesisSchemaVersion": "1.0",
+      "kinesis_partitionKey": "1",
+      "kinesis_sequenceNumber": "49590338271490256608559692538361571095921575989136588898",
+      "log_type": "aws_kinesis",
+      "sensorId": 40,
+      "status": "OK",
+      "text": "{	\\"sensorId\\": 40,	\\"currentTemperature\\": 76,	\\"status\\": \\"OK\\"}
+",
+    },
+    Object {
+      "awsRegion": "us-east-2",
+      "eventID": "shardId-000000000006:49590338271490256608559692538361571095921575989136588898",
+      "eventName": "aws:kinesis:record",
+      "eventSource": "aws:kinesis",
+      "eventSourceARN": "arn:aws:kinesis:us-east-2:123456789012:stream/lambda-stream",
+      "eventVersion": "1.0",
+      "ingest_timestamp": 1538769915817,
+      "invokeIdentityArn": "arn:aws:iam::123456789012:role/lambda-kinesis-role",
+      "kinesis_approximateArrivalTimestamp": 1545084650.987,
+      "kinesis_kinesisSchemaVersion": "2.0",
+      "kinesis_partitionKey": "2",
+      "kinesis_sequenceNumber": "49590338271490256608559692538361571095921575989136588898",
+      "log_type": "aws_kinesis",
+      "text": "hello world",
+    },
+    Object {
+      "awsRegion": "us-east-2",
+      "docker_container_id": "4667aa8e36ff8c9ed9d28a227e93a6718eb6498ead5807d4c4d515338041baee",
+      "eventID": "shardId-000000000006:49590338271490256608559692538361571095921575989136588898",
+      "eventName": "aws:kinesis:record",
+      "eventSource": "aws:kinesis",
+      "eventSourceARN": "arn:aws:kinesis:us-east-2:123456789012:stream/lambda-stream",
+      "eventVersion": "1.0",
+      "ingest_timestamp": 1538769915817,
+      "invokeIdentityArn": "arn:aws:iam::123456789012:role/lambda-kinesis-role",
+      "kinesis_approximateArrivalTimestamp": 1545084650.987,
+      "kinesis_kinesisSchemaVersion": "3.0",
+      "kinesis_partitionKey": "3",
+      "kinesis_sequenceNumber": "49590338271490256608559692538361571095921575989136588898",
+      "kubernetes_container_name": "user-service",
+      "kubernetes_namespace_name": "default",
+      "kubernetes_pod_name": "user-service-0d25baf",
+      "log_type": "aws_kinesis",
+      "stream": "stderr",
+      "text": "2014/09/25 21:15:03 I am sample log message
+",
+      "time": "2018–09–12T10:25:41.499185026Z",
+    },
+  ],
+}
+`;
