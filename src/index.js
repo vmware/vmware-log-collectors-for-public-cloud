@@ -62,6 +62,16 @@ const processCloudTrailLogs = (cloudTrailLogRecords) => {
 };
 
 /* eslint-disable no-param-reassign */
+const processDynamoDBLogs = (dynamoDBLogRecords) => {
+  const ingestionTime = Date.now();
+  for (const record of dynamoDBLogRecords) {
+    record.ingest_timestamp = ingestionTime;
+    record.log_type = 'aws_dynamoDB';
+    record.text = JSON.stringify(record.dynamodb);
+    delete record.dynamodb;
+  }
+};
+
 const processSQSLogs = (SQSLogRecords) => {
   const ingestionTime = Date.now();
   for (const record of SQSLogRecords) {
@@ -85,6 +95,22 @@ class CloudTrailHttpCollector extends Collector {
     }
 
     processCloudTrailLogs(logsJson.Records);
+    return JSON.stringify(logsJson.Records);
+  }
+}
+
+class DynamoDBHttpCollector extends Collector {
+  constructor(lintEnv) {
+    super('simple', lintEnv);
+  }
+
+  /* eslint-disable no-param-reassign */
+  processLogsJson(logsJson) {
+    if (!logsJson.Records) {
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
+    }
+
+    processDynamoDBLogs(logsJson.Records);
     return JSON.stringify(logsJson.Records);
   }
 }
@@ -269,6 +295,11 @@ const sendLogs = (zippedLogs, collector) => gunzipData(zippedLogs)
   .then(unzippedData => collector.processLogsJson(JSON.parse(unzippedData.toString('utf-8'))))
   .then(data => collector.postDataToStream(data));
 
+const sendDynamoDBLogs = (dynameDBLogs, collector) => {
+  const data = collector.processLogsJson(dynameDBLogs);
+  return collector.postDataToStream(data);
+};
+
 const sendKinesisLogs = (kinesisLogs, collector) => {
   const data = collector.processLogsJson(kinesisLogs);
   return collector.postDataToStream(data);
@@ -313,9 +344,14 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
     .catch(error => handleError(error, context));
 };
 
+const handleDynamoDBlogs = (event, context, lintEnv) => {
+  const collector = new DynamoDBHttpCollector(lintEnv);
+  sendDynamoDBLogs(event, collector);
+};
+
 const handleSQSlogs = (event, context, lintEnv) => {
   const collector = new SQSHttpCollector(lintEnv);
-  sendSQSLogs(event, collector)
+  sendSQSLogs(event, collector);
 };
 
 const handleKinesisLogs = (event, context, lintEnv) => {
@@ -329,7 +365,9 @@ const handleKinesisLogs = (event, context, lintEnv) => {
 };
 
 const handleRecords = (event, context, lintEnv) => {
-  if (event.Records[0].eventSource === 'aws:sqs') {
+  if (event.Records[0].dynamodb) {
+    handleDynamoDBlogs(event, context, lintEnv);
+  } else if (event.Records[0].eventSource === 'aws:sqs') {
     handleSQSlogs(event, context, lintEnv);
   } else if (event.Records[0].kinesis) {
     handleKinesisLogs(event, context, lintEnv);
@@ -372,6 +410,7 @@ module.exports = {
   CloudTrailKafkaCollector,
   CloudWatchHttpCollector,
   CloudWatchKafkaCollector,
+  DynamoDBHttpCollector,
   SQSHttpCollector,
   KinesisHttpCollector,
   processLogTextAsJson,
