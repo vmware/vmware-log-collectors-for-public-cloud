@@ -117,7 +117,7 @@ const flattenJson = (jsonObject, parentKey = null, level = 1, result = {}) => {
 };
 
 const shortenKey = (key) => {
-  key = key.replace(/[\\/\\.\\-\\\\]/, flattenJsonSeperator);
+  key = key.replace(/[\\/\\.\\-\\\\ ]/, flattenJsonSeperator);
   return key;
 };
 
