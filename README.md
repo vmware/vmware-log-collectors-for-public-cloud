@@ -52,6 +52,13 @@ First you need to have kinesis stream created in AWS. From the stream created a 
 Define specific roles for the kinesis stream to fetch the necessary data. Once the stream is ready we 
 can you see this to add trigger to our lambda function. From creating streams to creating producers and pushing data to stream is described here https://docs.aws.amazon.com/streams/latest/dev/introduction.html.
 
+#### 7. SNS data
+We can have Lambda functions to process Amazon Simple Notification Service notifications. When a message is published to an Amazon SNS topic, the service can invoke your Lambda function by passing the message payload as a parameter.
+https://docs.aws.amazon.com/lambda/latest/dg/with-sns.html This page shows steps to configure SNS topics
+and necessary roles to be provided to lambda function. Once the SNS topics and roles are ready, replace the 
+lambda code from the code taken in this repo. One use case of SNS data is we can configure RDS events to
+flow through SNS messages (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Events.html).
+ 
 ## Contributing
 
 The vmware-log-collectors-for-aws project team welcomes contributions from the community. Before you start working with vmware-log-collectors-for-aws, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch. For more detailed information, refer to [CONTRIBUTING.md](CONTRIBUTING.md).
