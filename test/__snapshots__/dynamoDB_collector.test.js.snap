@@ -1,34 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CloudWatchHttpCollector processLogsJson should process logs JSON 1`] = `
-Object {
-  "Records": Array [
-    Object {
-      "awsRegion": "us-west-2",
-      "eventID": "1",
-      "eventName": "INSERT",
-      "eventSource": "aws:dynamodb",
-      "eventSourceARN": "eventsourcearn",
-      "eventVersion": "1.0",
-      "ingest_timestamp": 1538769915817,
-      "log_type": "aws_dynamoDB",
-      "text": "{\\"Keys\\":{\\"Id\\":{\\"N\\":\\"101\\"}},\\"NewImage\\":{\\"Message\\":{\\"S\\":\\"New item!\\"},\\"Id\\":{\\"N\\":\\"101\\"}},\\"StreamViewType\\":\\"NEW_AND_OLD_IMAGES\\",\\"SequenceNumber\\":\\"111\\",\\"SizeBytes\\":26}",
-    },
-    Object {
-      "awsRegion": "us-west-2",
-      "eventID": "2",
-      "eventName": "MODIFY",
-      "eventSource": "aws:dynamodb",
-      "eventSourceARN": "sourcearn",
-      "eventVersion": "1.0",
-      "ingest_timestamp": 1538769915817,
-      "log_type": "aws_dynamoDB",
-      "text": "{\\"OldImage\\":{\\"Message\\":{\\"S\\":\\"New item!\\"},\\"Id\\":{\\"N\\":\\"101\\"}},\\"SequenceNumber\\":\\"222\\",\\"Keys\\":{\\"Id\\":{\\"N\\":\\"101\\"}},\\"SizeBytes\\":59,\\"NewImage\\":{\\"Message\\":{\\"S\\":\\"This item has changed\\"},\\"Id\\":{\\"N\\":\\"101\\"}},\\"StreamViewType\\":\\"NEW_AND_OLD_IMAGES\\"}",
-    },
-  ],
-}
-`;
-
 exports[`DynamoDBHttpCollector processLogsJson should process logs JSON 1`] = `
 Object {
   "Records": Array [

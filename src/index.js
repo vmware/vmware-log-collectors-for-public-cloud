@@ -226,6 +226,13 @@ const processLogTextAsJson = (logText) => {
   }
 };
 
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
 
 const processSNSLogs = (SNSLogRecords) => {
   const ingestionTime = Date.now();
@@ -252,6 +259,26 @@ const processS3Logs = (s3LogRecords) => {
   }
 };
 
+/* eslint-disable no-param-reassign */
+const processS3File = (bucketName, s3LogString) => {
+  let parsedS3Records = [];
+  let s3LogRecords = s3LogString.split(/\r?\n/);
+  const ingestionTime = Date.now();
+  for (const record of s3LogRecords) {
+    let parsedRecord = {};
+    let textJson = processLogTextAsJson(record);
+    if (isEmpty(textJson)) {
+      textJson = record;
+    }
+    parsedRecord.ingest_timestamp = ingestionTime;
+    parsedRecord.bucket_name = bucketName;
+    parsedRecord.log_type = 'aws_s3data';
+    parsedRecord.text = textJson;
+    parsedS3Records.push(parsedRecord);
+  }
+  return parsedS3Records;
+};
+
 class S3HttpCollector extends Collector {
   constructor(lintEnv) {
     super('simple', lintEnv);
@@ -264,6 +291,15 @@ class S3HttpCollector extends Collector {
     }
     processS3Logs(logsJson.Records);
     return JSON.stringify(logsJson.Records);
+  }
+
+  /* eslint-disable no-param-reassign */
+  processS3Data(bucketName, s3Records) {
+    if (!s3Records) {
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
+    }
+    let processedLogs = processS3File(bucketName, s3Records);
+    return processedLogs;
   }
 }
 
@@ -397,6 +433,38 @@ const sendLogs = (zippedLogs, collector) => gunzipData(zippedLogs)
   .then(unzippedData => collector.processLogsJson(JSON.parse(unzippedData.toString('utf-8'))))
   .then(data => collector.postDataToStream(data));
 
+const sendS3ContentLogs = (logs, collector, contentType, bucketName) => {
+  let batchSize = 300;
+  switch (contentType) {
+    case 'application/x-gzip':
+      gunzipData(logs)
+      .then(unzippedData => collector.processS3Data(bucketName, unzippedData.toString('utf-8')))
+      .then(data => postDataToStreamInBatches(collector, data, batchSize));
+      break;
+    default:
+      let data = collector.processS3Data(bucketName, logs.toString('utf-8'));
+      // collector.postDataToStream(JSON.stringify(data));
+      postDataToStreamInBatches(collector, data, batchSize);
+  }
+};
+
+function postDataToStreamInBatches(collector, data, batchSize) {
+  let numberOfBatches = Math.floor(data.length / batchSize);
+  if ((data.length % batchSize) > 0) {
+    numberOfBatches += 1;
+  }
+
+  var curr;
+  for (curr=0; curr < numberOfBatches; curr++) {
+    let end = (curr+1)*batchSize;
+    if(end > data.length) {
+      end = data.length;
+    }
+    let events = JSON.stringify(data.slice(curr*batchSize, end));
+    collector.postDataToStream(events);
+  }
+}
+
 const sendDynamoDBLogs = (dynameDBLogs, collector) => {
   const data = collector.processLogsJson(dynameDBLogs);
   return collector.postDataToStream(data);
@@ -446,9 +514,18 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
     .catch(error => handleError(error, context));
 };
 
-const handleS3logs = (event, context, lintEnv) => {
+const handleS3logs = (event, context, lintEnv, processS3BucketLogs) => {
   const collector = new S3HttpCollector(lintEnv);
-  sendS3Logs(event, collector);
+  if (processS3BucketLogs == 'false'){
+    sendS3Logs(event, collector);
+  } else {
+  const srcBucket = event.Records[0].s3.bucket.name;
+  const srcKey = event.Records[0].s3.object.key;
+
+  getS3Object(srcBucket, srcKey)
+    .then(s3Object => sendS3ContentLogs(s3Object.Body,
+    collector, s3Object.ContentType, srcBucket))
+  }
 };
 
 const handleDynamoDBlogs = (event, context, lintEnv) => {
@@ -482,13 +559,13 @@ const handleDefaultRecords = (event, context, lintEnv) => {
   }
 };
 
-const handleRecords = (event, context, lintEnv) => {
+const handleRecords = (event, context, lintEnv, processS3BucketLogs) => {
   let source = event.Records[0].eventSource;
-  if (event.Records[0].EventSource !== null && event.Records[0].EventSource !== '') {
+  if (event.Records[0].EventSource) {
     source = event.Records[0].EventSource;
   }
   switch (source) {
-    case 'aws:s3': handleS3logs(event, context, lintEnv);
+    case 'aws:s3': handleS3logs(event, context, lintEnv, processS3BucketLogs);
       break;
     case 'aws:dynamodb': handleDynamoDBlogs(event, context, lintEnv);
       break;
@@ -510,6 +587,8 @@ const handler = (event, context) => {
     return;
   }
 
+  const processS3BucketLogs = process.env.processS3BucketLogs || false;
+
   const ingestionUrl = process.env.LogIntelligence_API_Url || 'https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream';
 
   const tagRegexMap = new Map();
@@ -526,7 +605,7 @@ const handler = (event, context) => {
   }
 
   if (event.Records) {
-    handleRecords(event, context, lintEnv);
+    handleRecords(event, context, lintEnv, processS3BucketLogs);
   }
 };
 
