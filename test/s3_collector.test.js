@@ -5,6 +5,7 @@ SPDX-License-Identifier: MIT
 
 const { lintTestEnv } = require('../test/helper.test');
 const { s3SampleData } = require('./sample_files/s3_testdata');
+const { s3SampleFileContent } = require('./sample_files/s3_testdata');
 
 const {
   S3HttpCollector,
@@ -24,5 +25,13 @@ describe('S3HttpCollector', () => {
         .toMatchSnapshot();
     });
   });
-});
 
+  describe('processS3Data', () => {
+    it('should process data JSON', () => {
+      const logsJson = s3SampleFileContent();
+      const data = collector.processS3Data('test', JSON.stringify(logsJson));
+      expect(data)
+        .toMatchSnapshot();
+    });
+  });
+});
