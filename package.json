@@ -11,7 +11,10 @@
   "jest": {
     "verbose": true,
     "testURL": "http://localhost/",
-    "testPathIgnorePatterns": ["<rootDir>/test/helper.test.js", "<rootDir>/node_modules/"]
+    "testPathIgnorePatterns": [
+      "<rootDir>/test/helper.test.js",
+      "<rootDir>/node_modules/"
+    ]
   },
   "devDependencies": {
     "eslint": "^4.16.0",
