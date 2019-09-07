@@ -55,6 +55,7 @@ describe('CloudTrailHttpCollector', () => {
       const expectedReqBody = [{
         id: 'id1',
         field1: 'value1',
+        text: '{"id":"id1","field1":"value1"}',
         ingest_timestamp: 1538769915817,
         log_type: 'aws_cloud_trail',
       }];

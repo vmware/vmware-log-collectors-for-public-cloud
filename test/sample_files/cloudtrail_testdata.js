@@ -70,6 +70,19 @@ const createSample1 = () => ({
         accountId: '792677813823',
         accessKeyId: 'AKIAJDNI5LT67QRAUMIQ',
         userName: 'flands',
+        sessionContext: {
+          attributes: {
+            mfaAuthenticated: 'false',
+            creationDate: '20131102T010628Z'
+          },
+          sessionIssuer: {
+            type: 'Role',
+            principalId: 'AROAIDPPEZS35WEXAMPLE',
+            arn: 'arn:aws:iam::123456789012:role/RoleToBeAssumed',
+            accountId: '123456789012',
+            userName: 'RoleToBeAssumed'
+          }
+        }
       },
       eventTime: '2018-06-14T17:17:56Z',
       eventSource: 'ec2.amazonaws.com',
@@ -78,7 +91,13 @@ const createSample1 = () => ({
       sourceIPAddress: '13.56.178.189',
       userAgent: 'aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8',
       requestParameters: {
-        availabilityZoneSet: {},
+        host: [
+          's3.us-west-2.amazonaws.com'
+        ],
+        bucketName: 'myawsbucket',
+        versioning: [
+          ''
+        ]
       },
       responseElements: null,
       requestID: '03c4406b-42dc-4172-8beb-d76e15b9d69f',

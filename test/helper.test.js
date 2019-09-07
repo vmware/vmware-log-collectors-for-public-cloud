@@ -22,7 +22,7 @@ const sendLogsAndVerify = (done, collector, logsJson, expectedReqBody, expectedR
     .reply(200);
 
   gzipLogs(logsJson)
-    .then(zippedData => sendLogs(zippedData, collector, 'cloud_watch'))
+    .then(zippedData => sendLogs(zippedData, collector))
     .then(() => done())
     .catch(error => done.fail(error));
 };
