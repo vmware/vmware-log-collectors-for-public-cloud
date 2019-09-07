@@ -89,9 +89,17 @@ const flattenSNSObject = (record) => {
 const processCloudTrailLogs = (cloudTrailLogRecords) => {
   const ingestionTime = Date.now();
   for (const record of cloudTrailLogRecords) {
+    record.text = JSON.stringify(record);
+    if (record.requestParameters) {
+      Object.assign(record, flattenJson(record.requestParameters, 'requestParameters'));
+      delete record.requestParameters;
+    }
+    if (record.userIdentity) {
+      Object.assign(record, flattenJson(record.userIdentity, 'userIdentity'));
+      delete record.userIdentity;
+    }
     record.ingest_timestamp = ingestionTime;
     record.log_type = 'aws_cloud_trail';
-    flattenUserIdentity(record);
   }
 };
 
@@ -484,8 +492,11 @@ const handleDefaultRecords = (event, context, lintEnv) => {
 
 const handleRecords = (event, context, lintEnv) => {
   let source = event.Records[0].eventSource;
-  if (event.Records[0].EventSource !== null && event.Records[0].EventSource !== '') {
+  if (event.Records[0].EventSource) {
     source = event.Records[0].EventSource;
+  }
+  if (process.env.CloudTrail_Logs) {
+    source = 'cloudTrail';
   }
   switch (source) {
     case 'aws:s3': handleS3logs(event, context, lintEnv);
@@ -497,6 +508,8 @@ const handleRecords = (event, context, lintEnv) => {
     case 'aws:kinesis': handleKinesisLogs(event, context, lintEnv);
       break;
     case 'aws:sns': handleSNSlogs(event, context, lintEnv);
+      break;
+    case 'cloudTrail': handleCloudTrailLogs(event, context, lintEnv);
       break;
     default: handleDefaultRecords(event, context, lintEnv);
       break;
