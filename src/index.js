@@ -499,6 +499,9 @@ const handleRecords = (event, context, lintEnv) => {
   if (event.Records[0].EventSource) {
     source = event.Records[0].EventSource;
   }
+  if (process.env.CloudTrail_Logs) {
+    source = 'cloudTrail';
+  }
   switch (source) {
     case 'aws:s3': handleS3logs(event, context, lintEnv);
       break;
@@ -509,6 +512,8 @@ const handleRecords = (event, context, lintEnv) => {
     case 'aws:kinesis': handleKinesisLogs(event, context, lintEnv);
       break;
     case 'aws:sns': handleSNSlogs(event, context, lintEnv);
+      break;
+    case 'cloudTrail': handleCloudTrailLogs(event, context, lintEnv);
       break;
     default: handleDefaultRecords(event, context, lintEnv);
       break;
