@@ -89,9 +89,17 @@ const flattenSNSObject = (record) => {
 const processCloudTrailLogs = (cloudTrailLogRecords) => {
   const ingestionTime = Date.now();
   for (const record of cloudTrailLogRecords) {
+    record.text = JSON.stringify(record);
+    if (record.requestParameters) {
+      Object.assign(record, flattenJson(record.requestParameters, 'requestParameters'));
+      delete record.requestParameters;
+    }
+    if (record.userIdentity) {
+      Object.assign(record, flattenJson(record.userIdentity, 'userIdentity'));
+      delete record.userIdentity;
+    }
     record.ingest_timestamp = ingestionTime;
     record.log_type = 'aws_cloud_trail';
-    flattenUserIdentity(record);
   }
 };
 
@@ -447,8 +455,12 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
 };
 
 const handleS3logs = (event, context, lintEnv) => {
-  const collector = new S3HttpCollector(lintEnv);
-  sendS3Logs(event, collector);
+  if (process.env.CloudTrail_Logs === 'true') {
+    handleCloudTrailLogs(event, context, lintEnv);
+  } else {
+    const collector = new S3HttpCollector(lintEnv);
+    sendS3Logs(event, collector);
+  }
 };
 
 const handleDynamoDBlogs = (event, context, lintEnv) => {
@@ -484,7 +496,7 @@ const handleDefaultRecords = (event, context, lintEnv) => {
 
 const handleRecords = (event, context, lintEnv) => {
   let source = event.Records[0].eventSource;
-  if (event.Records[0].EventSource !== null && event.Records[0].EventSource !== '') {
+  if (event.Records[0].EventSource) {
     source = event.Records[0].EventSource;
   }
   switch (source) {
