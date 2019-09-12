@@ -417,13 +417,10 @@ function readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, 
     const parsedLine = processS3Line(Bucket, region, sourceIPAddress, Key, line);
     const sizeInBytes = getBatchSizeInBytes(currBatch + parsedLine);
     if (sizeInBytes > (0.9 * 1024 * 1024)) {
-      console.log(currBatch.length);
       collector.postDataToStream(currBatch);
       currBatch = [];
     }
     currBatch.push(parsedLine);
-  }).on('error', function (error) {
-    console.log(error);
   });
   if (currBatch.length > 0) {
     collector.postDataToStream(currBatch);
@@ -453,15 +450,14 @@ function readAndPushTarGZLogs(collector, logStream, Bucket, region, sourceIPAddr
     });
 }
 
-const sendS3ContentLogs = (s3, collector, contentType, event) => {
-  console.log('in send s3 content logs');
+const sendS3ContentLogs = (collector, contentType, event) => {
   const Bucket = event.Records[0].s3.bucket.name;
   const Key = event.Records[0].s3.object.key;
   const region = event.Records[0].awsRegion;
   const sourceIPAddress = event.Records[0].requestParameters.sourceIPAddress;
+  const s3 = new aws.S3();
   const logStream = s3.getObject({ Bucket, Key }).createReadStream();
   let lineReader = null;
-  console.log('Got application content type as:', contentType);
   switch (contentType) {
     case 'application/zip':
       readAndPushZipLogs(collector, logStream, Bucket, region, sourceIPAddress, Key);
@@ -526,20 +522,6 @@ const getS3HeadObject = (Bucket, Key) => new Promise((resolve, reject) => {
   );
 });
 
-const getS3ObjectStream = (Bucket, Key) => new Promise((resolve, reject) => {
-  const s3 = new aws.S3();
-  console.log('in get object stream');
-  s3.getObject({ Bucket, Key }).createReadStream()
-    .on('error', (error) => {
-      console.log('in reject');
-      return reject(error);
-    })
-    .on('end', () => {
-      console.log('in resolve');
-      return resolve();
-    });
-});
-
 const handleCloudTrailLogs = (event, context, lintEnv) => {
   const collector = new CloudTrailHttpCollector(lintEnv);
   const srcBucket = event.Records[0].s3.bucket.name;
@@ -552,12 +534,12 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
 };
 
 const handleS3logs = (event, context, lintEnv) => {
-<<<<<<< HEAD
   const collector = new S3HttpCollector(lintEnv);
   // eslint-disable-next-line prefer-destructuring
   const processS3BucketLogs = process.env.processS3BucketLogs;
-  if (processS3BucketLogs === 'true') {
-    console.log('in true');
+  if (process.env.CloudTrail_Logs === 'true') {
+    handleCloudTrailLogs(event, context, lintEnv);
+  } else if (processS3BucketLogs === 'true') {
     const srcBucket = event.Records[0].s3.bucket.name;
     const srcKey = event.Records[0].s3.object.key;
 
@@ -566,12 +548,6 @@ const handleS3logs = (event, context, lintEnv) => {
         sendS3ContentLogs(collector, s3Metadata.ContentType, event);
       });
   } else {
-=======
-  if (process.env.CloudTrail_Logs === 'true') {
-    handleCloudTrailLogs(event, context, lintEnv);
-  } else {
-    const collector = new S3HttpCollector(lintEnv);
->>>>>>> f512b2c3671e1af8e567d60ef798cf6370b90722
     sendS3Logs(event, collector);
   }
 };
