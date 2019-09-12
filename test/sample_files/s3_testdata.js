@@ -42,39 +42,6 @@ const s3SampleData = () => ({
   ],
 });
 
-const s3SampleFileContent = () => (
-  [{
-    time: '17/May/2015:08:05:32 +0000',
-    remote_ip: '93.180.71.3',
-    remote_user: '-',
-    request: 'GET /downloads/product_1 HTTP/1.1',
-    response: 304,
-    bytes: 0,
-    referrer: '-',
-    agent: 'Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)',
-  },
-  {
-    time: '17/May/2015:08:05:23 +0000',
-    remote_ip: '93.180.71.3',
-    remote_user: '-',
-    request: 'GET /downloads/product_1 HTTP/1.1',
-    response: 304,
-    bytes: 0,
-    referrer: '-',
-    agent: 'Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)',
-  }]
-);
-
-const s3SampleRawLogs = () => (['83.149.9.216 - - [17/May/2015:10:05:03 +0000] "GET /presentations/logstash-monitorama-2013/images/kibana-search.png ' +
-  'HTTP/1.1" 200 203023 "http://semicomplete.com/presentations/logstash-monitorama-2013/" ' +
-  '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36"',
-'83.149.9.216 - - [17/May/2015:10:05:43 +0000] "GET /presentations/logstash-monitorama-2013/images/kibana-dashboard3.png ' +
-  'HTTP/1.1" 200 171717 "http://semicomplete.com/presentations/logstash-monitorama-2013/" ' +
-  '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36"']
-);
-
 module.exports = {
   s3SampleData,
-  s3SampleFileContent,
-  s3SampleRawLogs,
 };

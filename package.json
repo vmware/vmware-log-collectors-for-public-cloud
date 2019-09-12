@@ -26,6 +26,8 @@
     "nock": "^9.6.1"
   },
   "dependencies": {
-    "aws-sdk": "^2.268.1"
+    "aws-sdk": "^2.268.1",
+    "tar-stream": "^2.1.0",
+    "unzip-stream": "^0.3.0"
   }
 }
