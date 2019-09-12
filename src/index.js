@@ -91,9 +91,17 @@ const flattenSNSObject = (record) => {
 const processCloudTrailLogs = (cloudTrailLogRecords) => {
   const ingestionTime = Date.now();
   for (const record of cloudTrailLogRecords) {
+    record.text = JSON.stringify(record);
+    if (record.requestParameters) {
+      Object.assign(record, flattenJson(record.requestParameters, 'requestParameters'));
+      delete record.requestParameters;
+    }
+    if (record.userIdentity) {
+      Object.assign(record, flattenJson(record.userIdentity, 'userIdentity'));
+      delete record.userIdentity;
+    }
     record.ingest_timestamp = ingestionTime;
     record.log_type = 'aws_cloud_trail';
-    flattenUserIdentity(record);
   }
 };
 
@@ -544,6 +552,7 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
 };
 
 const handleS3logs = (event, context, lintEnv) => {
+<<<<<<< HEAD
   const collector = new S3HttpCollector(lintEnv);
   // eslint-disable-next-line prefer-destructuring
   const processS3BucketLogs = process.env.processS3BucketLogs;
@@ -557,6 +566,12 @@ const handleS3logs = (event, context, lintEnv) => {
         sendS3ContentLogs(collector, s3Metadata.ContentType, event);
       });
   } else {
+=======
+  if (process.env.CloudTrail_Logs === 'true') {
+    handleCloudTrailLogs(event, context, lintEnv);
+  } else {
+    const collector = new S3HttpCollector(lintEnv);
+>>>>>>> f512b2c3671e1af8e567d60ef798cf6370b90722
     sendS3Logs(event, collector);
   }
 };
