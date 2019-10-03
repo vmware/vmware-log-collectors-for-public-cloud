@@ -13,10 +13,10 @@ The following sections describe each of the above two steps in detail.
 
 ### Deploy the Lambda function
 1. In the AWS Web Console, create a new Lambda function in AWS.
-2. Select Node.js 8.10 as the runtime. Set the 'Handler' field to 'index.handler'. Set the timeout of the Lambda function to 40 seconds.
-3. In the AWS Web Console, create two code files lint.js and index.js for the Lambda function.
-4. Copy the code in lint.js and paste it into the lint.js code file of the Lambda function.
-5. Copy the code in index.js and paste it into the index.js code file of the Lambda function.
+2. Select Node.js 8.10 as the runtime. Click on 'Create Function'.
+3. Set the 'Handler' field to 'index.handler'. Set the timeout of the Lambda function to 60 seconds.
+4. Select 'Code Entry Type' to 'Upload a .zip file'.
+5. Upload the zip file from the latest release in the 'Function Package'.
 
 ### Configure the Lambda function
 In the AWS Web Console, configure an environment variable for the Lambda function. The key of the environment variable should be 'LogIntelligence_API_Token'. The value of the environment variable should be a valid VMware Log Intelligence API token.

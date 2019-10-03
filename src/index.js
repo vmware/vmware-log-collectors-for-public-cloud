@@ -18,6 +18,8 @@ const readline = require('readline');
 const unzip = require('unzip-stream');
 const tar = require('tar-stream');
 
+const batch_size = 0.9 * 1024 * 1024;
+
 /* eslint-disable no-param-reassign */
 const flattenUserIdentity = (record) => {
   if (record.userIdentity) {
@@ -416,7 +418,7 @@ function readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, 
   lineReader.on('line', function (line) {
     const parsedLine = processS3Line(Bucket, region, sourceIPAddress, Key, line);
     const sizeInBytes = getBatchSizeInBytes(currBatch + parsedLine);
-    if (sizeInBytes > (0.9 * 1024 * 1024)) {
+    if (sizeInBytes > (batch_size)) {
       collector.postDataToStream(currBatch);
       currBatch = [];
     }
@@ -605,7 +607,6 @@ const handleRecords = (event, context, lintEnv) => {
 };
 
 const handler = (event, context) => {
-  console.log(JSON.stringify(event));
   const apiToken = process.env.LogIntelligence_API_Token;
   if (!apiToken) {
     handleError('The API token is missing. Please configure it in an environment variable of the lambda function');
