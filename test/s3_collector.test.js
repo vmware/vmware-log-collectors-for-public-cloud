@@ -25,4 +25,3 @@ describe('S3HttpCollector', () => {
     });
   });
 });
-

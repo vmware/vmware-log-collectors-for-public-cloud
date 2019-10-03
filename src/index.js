@@ -13,8 +13,12 @@ const {
   flattenJson,
   shortenKey,
 } = require('./lint');
+const zlib = require('zlib');
+const readline = require('readline');
+const unzip = require('unzip-stream');
+const tar = require('tar-stream');
 
-const logTextKeys = ['log', 'message', 'msg'];
+const batch_size = 0.9 * 1024 * 1024;
 
 /* eslint-disable no-param-reassign */
 const flattenUserIdentity = (record) => {
@@ -195,7 +199,7 @@ const extractTags = (logText, tagRegexMap) => {
 const processLogTextAsJson = (logText) => {
   const keys = [];
   const mergedRecords = {};
-  let log = '';
+  mergedRecords.text = logText;
   try {
     let textJson = JSON.parse(logText);
     textJson = flattenJson(textJson);
@@ -213,27 +217,13 @@ const processLogTextAsJson = (logText) => {
         }
         keys.push(key);
       }
-      if (logTextKeys.includes(key)) {
-        if (log !== value) {
-          if (log === '') {
-            log = value;
-          } else {
-            log = `${log}${value}`;
-          }
-        }
-      } else {
-        mergedRecords[key] = value;
-      }
+      mergedRecords[key] = value;
     });
-    if (log !== '') {
-      mergedRecords.text = log;
-    }
     return mergedRecords;
   } catch (e) {
-    return {};
+    return mergedRecords
   }
 };
-
 
 const processSNSLogs = (SNSLogRecords) => {
   const ingestionTime = Date.now();
@@ -258,6 +248,19 @@ const processS3Logs = (s3LogRecords) => {
     delete record.s3;
     Object.assign(record, textJson);
   }
+};
+
+/* eslint-disable no-param-reassign */
+const processS3Line = (bucketName, region, sourceIPAddress, fileName, s3LogString) => {
+  const ingestionTime = Date.now();
+  const parsedRecord = processLogTextAsJson(s3LogString);
+  parsedRecord.ingest_timestamp = ingestionTime;
+  parsedRecord.bucket_name = bucketName;
+  parsedRecord.log_type = 'aws_s3_data';
+  parsedRecord.region = region;
+  parsedRecord.source_ip_addr = sourceIPAddress;
+  parsedRecord.file_name = fileName;
+  return parsedRecord;
 };
 
 class S3HttpCollector extends Collector {
@@ -405,6 +408,76 @@ const sendLogs = (zippedLogs, collector) => gunzipData(zippedLogs)
   .then(unzippedData => collector.processLogsJson(JSON.parse(unzippedData.toString('utf-8'))))
   .then(data => collector.postDataToStream(data));
 
+function getBatchSizeInBytes(batch) {
+  const g = JSON.stringify(batch).replace(/[[\],"]/g, '');
+  return g.length;
+}
+
+function readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, Key) {
+  let currBatch = [];
+  lineReader.on('line', function (line) {
+    const parsedLine = processS3Line(Bucket, region, sourceIPAddress, Key, line);
+    const sizeInBytes = getBatchSizeInBytes(currBatch + parsedLine);
+    if (sizeInBytes > (batch_size)) {
+      collector.postDataToStream(currBatch);
+      currBatch = [];
+    }
+    currBatch.push(parsedLine);
+  });
+  if (currBatch.length > 0) {
+    collector.postDataToStream(currBatch);
+  }
+}
+
+function readAndPushZipLogs(collector, logStream, Bucket, region, sourceIPAddress, Key) {
+  const lineReader = [];
+  let i = 0;
+  logStream.pipe(unzip.Parse())
+    .on('entry', function (entry) {
+      lineReader[i] = readline.createInterface({ input: entry });
+      readDataStream(collector, lineReader[i], Bucket, region, sourceIPAddress, (Key, '/', entry.name));
+      i += 1;
+    });
+}
+
+function readAndPushTarGZLogs(collector, logStream, Bucket, region, sourceIPAddress, Key) {
+  const lineReader = [];
+  let i = 0;
+  logStream.pipe(zlib.createGunzip())
+    .pipe(tar.extract())
+    .on('entry', function (header, stream, next) {
+      lineReader[i] = readline.createInterface({ input: stream });
+      readDataStream(collector, lineReader[i], Bucket, region, sourceIPAddress, (Key, '/', header.name));
+      i += 1;
+    });
+}
+
+const sendS3ContentLogs = (collector, contentType, event) => {
+  const Bucket = event.Records[0].s3.bucket.name;
+  const Key = event.Records[0].s3.object.key;
+  const region = event.Records[0].awsRegion;
+  const sourceIPAddress = event.Records[0].requestParameters.sourceIPAddress;
+  const s3 = new aws.S3();
+  const logStream = s3.getObject({ Bucket, Key }).createReadStream();
+  let lineReader = null;
+  switch (contentType) {
+    case 'application/zip':
+      readAndPushZipLogs(collector, logStream, Bucket, region, sourceIPAddress, Key);
+      break;
+    case 'application/x-gzip':
+      if (Key.endsWith('.tar.gz') || Key.endsWith('.tgz')) {
+        readAndPushTarGZLogs(collector, logStream, Bucket, region, sourceIPAddress, Key);
+      } else {
+        lineReader = readline.createInterface({ input: logStream.pipe(zlib.createGunzip()) });
+        readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, Key);
+      }
+      break;
+    default:
+      lineReader = readline.createInterface({ input: logStream });
+      readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, Key);
+  }
+};
+
 const sendDynamoDBLogs = (dynameDBLogs, collector) => {
   const data = collector.processLogsJson(dynameDBLogs);
   return collector.postDataToStream(data);
@@ -443,6 +516,14 @@ const getS3Object = (Bucket, Key) => new Promise((resolve, reject) => {
   );
 });
 
+const getS3HeadObject = (Bucket, Key) => new Promise((resolve, reject) => {
+  const s3 = new aws.S3();
+  s3.headObject(
+    { Bucket, Key },
+    (error, data) => (error ? reject(error) : resolve(data)),
+  );
+});
+
 const handleCloudTrailLogs = (event, context, lintEnv) => {
   const collector = new CloudTrailHttpCollector(lintEnv);
   const srcBucket = event.Records[0].s3.bucket.name;
@@ -455,10 +536,20 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
 };
 
 const handleS3logs = (event, context, lintEnv) => {
+  const collector = new S3HttpCollector(lintEnv);
+  // eslint-disable-next-line prefer-destructuring
+  const processS3BucketLogs = process.env.processS3BucketLogs;
   if (process.env.CloudTrail_Logs === 'true') {
     handleCloudTrailLogs(event, context, lintEnv);
+  } else if (processS3BucketLogs === 'true') {
+    const srcBucket = event.Records[0].s3.bucket.name;
+    const srcKey = event.Records[0].s3.object.key;
+
+    getS3HeadObject(srcBucket, srcKey)
+      .then((s3Metadata) => {
+        sendS3ContentLogs(collector, s3Metadata.ContentType, event);
+      });
   } else {
-    const collector = new S3HttpCollector(lintEnv);
     sendS3Logs(event, collector);
   }
 };
@@ -545,6 +636,7 @@ const handler = (event, context) => {
 module.exports = {
   handler,
   sendLogs,
+  sendS3ContentLogs,
   CloudTrailHttpCollector,
   CloudTrailKafkaCollector,
   CloudWatchHttpCollector,
