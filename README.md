@@ -40,6 +40,7 @@ This lambda captures all the Object once it is CREATED, which is provided by AWS
 S3 bucket console. Once the bucket is ready we need to add necessary permissions to lambda to
 get access to the s3 bucket and add it as a trigger. https://docs.aws.amazon.com/lambda/latest/dg/with-s3.html
 The page describes the process of adding trigger and function roles required for lambda.
+Note: Lambda's max execution time is 15 mins. If the file is huge then it lambda might not finish in time and will eventually fail.
 
 #### 5. ELB
 We can use AWS Lambda function to push ELB logs once they are configured to be published to S3 bucket.
