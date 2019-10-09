@@ -435,7 +435,6 @@ function readAndPushZipLogs(collector, logStream, Bucket, region, sourceIPAddres
   let i = 0;
   logStream.pipe(unzip.Parse())
     .on('entry', function (entry) {
-      console.log(entry.path);
       lineReader[i] = readline.createInterface({ input: entry });
       readDataStream(collector, lineReader[i], Bucket, region, sourceIPAddress, (Key, '/', entry.path));
       i += 1;
