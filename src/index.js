@@ -419,14 +419,15 @@ function readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, 
     const parsedLine = processS3Line(Bucket, region, sourceIPAddress, Key, line);
     const sizeInBytes = getBatchSizeInBytes(currBatch + parsedLine);
     if (sizeInBytes > (batch_size)) {
-      collector.postDataToStream(currBatch);
+      collector.postDataToStream(JSON.stringify(currBatch));
       currBatch = [];
     }
     currBatch.push(parsedLine);
+  }).on('close', function() {
+    if (currBatch.length > 0) {
+      collector.postDataToStream(JSON.stringify(currBatch));
+    }
   });
-  if (currBatch.length > 0) {
-    collector.postDataToStream(currBatch);
-  }
 }
 
 function readAndPushZipLogs(collector, logStream, Bucket, region, sourceIPAddress, Key) {
@@ -435,7 +436,7 @@ function readAndPushZipLogs(collector, logStream, Bucket, region, sourceIPAddres
   logStream.pipe(unzip.Parse())
     .on('entry', function (entry) {
       lineReader[i] = readline.createInterface({ input: entry });
-      readDataStream(collector, lineReader[i], Bucket, region, sourceIPAddress, (Key, '/', entry.name));
+      readDataStream(collector, lineReader[i], Bucket, region, sourceIPAddress, (Key, '/', entry.path));
       i += 1;
     });
 }
