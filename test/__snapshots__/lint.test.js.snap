@@ -14,9 +14,11 @@ Object {
   "field1_field12": "value12",
   "field2": "value2",
   "field3": 3,
-  "field4_field41_0": "a",
-  "field4_field41_1": "b",
-  "field4_field41_2": "c",
+  "field4_field41": Array [
+    "a",
+    "b",
+    "c",
+  ],
 }
 `;
 
