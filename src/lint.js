@@ -106,10 +106,14 @@ const flattenJson = (jsonObject, parentKey = null, level = 1, result = {}) => {
     const fieldValue = jsonObject[fieldKey];
     const newFieldKey = parentKey ? `${parentKey}${flattenJsonSeperator}${fieldKey}` : fieldKey;
 
-    if ((level < 8) && (fieldValue instanceof Object)) { // 8 is the max level
-      flattenJson(fieldValue, newFieldKey, level + 1, result);
-    } else {
+    if (fieldValue instanceof Array) {
       result[newFieldKey] = fieldValue;
+    } else {
+      if ((level < 8) && (fieldValue instanceof Object)) { // 8 is the max level
+        flattenJson(fieldValue, newFieldKey, level + 1, result);
+      } else {
+        result[newFieldKey] = fieldValue;
+      }
     }
   });
 
@@ -117,7 +121,7 @@ const flattenJson = (jsonObject, parentKey = null, level = 1, result = {}) => {
 };
 
 const shortenKey = (key) => {
-  key = key.replace(/[\\/\\.\\-\\\\]/, flattenJsonSeperator);
+  key = key.replace(/[\\/\\.\\-\\\\ ]/, flattenJsonSeperator);
   return key;
 };
 

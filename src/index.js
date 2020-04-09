@@ -73,13 +73,33 @@ const flattenKinesesObject = (record) => {
   }
 };
 
+const flattenSNSObject = (record) => {
+  if (record.Sns) {
+    for (const property of Object.keys(record.Sns)) {
+      const newPropName = `Sns_${property}`;
+      record[newPropName] = record.Sns[property];
+    }
+    record.text = record.Sns_Message;
+    delete record.Sns_Message;
+    delete record.Sns;
+  }
+};
+
 /* eslint-disable no-param-reassign */
 const processCloudTrailLogs = (cloudTrailLogRecords) => {
   const ingestionTime = Date.now();
   for (const record of cloudTrailLogRecords) {
+    record.text = JSON.stringify(record);
+    if (record.requestParameters) {
+      Object.assign(record, flattenJson(record.requestParameters, 'requestParameters'));
+      delete record.requestParameters;
+    }
+    if (record.userIdentity) {
+      Object.assign(record, flattenJson(record.userIdentity, 'userIdentity'));
+      delete record.userIdentity;
+    }
     record.ingest_timestamp = ingestionTime;
     record.log_type = 'aws_cloud_trail';
-    flattenUserIdentity(record);
   }
 };
 
@@ -214,6 +234,16 @@ const processLogTextAsJson = (logText) => {
   }
 };
 
+
+const processSNSLogs = (SNSLogRecords) => {
+  const ingestionTime = Date.now();
+  for (const record of SNSLogRecords) {
+    record.ingest_timestamp = ingestionTime;
+    record.log_type = 'aws_sns';
+    flattenSNSObject(record);
+  }
+};
+
 /* eslint-disable no-param-reassign */
 const processS3Logs = (s3LogRecords) => {
   const ingestionTime = Date.now();
@@ -267,6 +297,11 @@ const sendSQSLogs = (SQSLogs, collector) => {
   return collector.postDataToStream(data);
 };
 
+const sendSNSLogs = (SNSLogs, collector) => {
+  const data = collector.processLogsJson(SNSLogs);
+  return collector.postDataToStream(data);
+};
+
 class SQSHttpCollector extends Collector {
   constructor(lintEnv) {
     super('simple', lintEnv);
@@ -282,6 +317,23 @@ class SQSHttpCollector extends Collector {
     return JSON.stringify(logsJson.Records);
   }
 }
+
+class SNSHttpCollector extends Collector {
+  constructor(lintEnv) {
+    super('simple', lintEnv);
+  }
+
+  /* eslint-disable no-param-reassign */
+  processLogsJson(logsJson) {
+    if (!logsJson.Records) {
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
+    }
+
+    processSNSLogs(logsJson.Records);
+    return JSON.stringify(logsJson.Records);
+  }
+}
+
 /* eslint-disable no-param-reassign */
 const processKinesislLogs = (kinesisLogRecords) => {
   const ingestionTime = Date.now();
@@ -403,8 +455,12 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
 };
 
 const handleS3logs = (event, context, lintEnv) => {
-  const collector = new S3HttpCollector(lintEnv);
-  sendS3Logs(event, collector);
+  if (process.env.CloudTrail_Logs === 'true') {
+    handleCloudTrailLogs(event, context, lintEnv);
+  } else {
+    const collector = new S3HttpCollector(lintEnv);
+    sendS3Logs(event, collector);
+  }
 };
 
 const handleDynamoDBlogs = (event, context, lintEnv) => {
@@ -415,6 +471,11 @@ const handleDynamoDBlogs = (event, context, lintEnv) => {
 const handleSQSlogs = (event, context, lintEnv) => {
   const collector = new SQSHttpCollector(lintEnv);
   sendSQSLogs(event, collector);
+};
+
+const handleSNSlogs = (event, context, lintEnv) => {
+  const collector = new SNSHttpCollector(lintEnv);
+  sendSNSLogs(event, collector);
 };
 
 const handleKinesisLogs = (event, context, lintEnv) => {
@@ -429,12 +490,16 @@ const handleKinesisLogs = (event, context, lintEnv) => {
 
 const handleDefaultRecords = (event, context, lintEnv) => {
   if (event.Records[0].eventSource.includes('amazonaws.com')) {
-    handleCloudTrailLogs(event, context, lintEnv)
+    handleCloudTrailLogs(event, context, lintEnv);
   }
 };
 
 const handleRecords = (event, context, lintEnv) => {
-  switch (event.Records[0].eventSource) {
+  let source = event.Records[0].eventSource;
+  if (event.Records[0].EventSource) {
+    source = event.Records[0].EventSource;
+  }
+  switch (source) {
     case 'aws:s3': handleS3logs(event, context, lintEnv);
       break;
     case 'aws:dynamodb': handleDynamoDBlogs(event, context, lintEnv);
@@ -442,6 +507,8 @@ const handleRecords = (event, context, lintEnv) => {
     case 'aws:sqs': handleSQSlogs(event, context, lintEnv);
       break;
     case 'aws:kinesis': handleKinesisLogs(event, context, lintEnv);
+      break;
+    case 'aws:sns': handleSNSlogs(event, context, lintEnv);
       break;
     default: handleDefaultRecords(event, context, lintEnv);
       break;
@@ -487,5 +554,6 @@ module.exports = {
   SQSHttpCollector,
   KinesisHttpCollector,
   processLogTextAsJson,
+  SNSHttpCollector,
   sendKinesisLogs,
 };

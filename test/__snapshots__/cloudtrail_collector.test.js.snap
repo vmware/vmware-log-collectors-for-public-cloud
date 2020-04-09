@@ -15,32 +15,28 @@ Object {
       "log_type": "aws_cloud_trail",
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
-      "requestParameters": Object {
-        "filterSet": Object {
-          "items": Array [
-            Object {
-              "name": "vpc-id",
-              "valueSet": Object {
-                "items": Array [
-                  Object {
-                    "value": "vpc-04e3326d",
-                  },
-                ],
+      "requestParameters_filterSet_items": Array [
+        Object {
+          "name": "vpc-id",
+          "valueSet": Object {
+            "items": Array [
+              Object {
+                "value": "vpc-04e3326d",
               },
-            },
-          ],
+            ],
+          },
         },
-        "subnetSet": Object {},
-      },
+      ],
       "responseElements": null,
       "sourceIPAddress": "13.56.178.189",
+      "text": "{\\"eventVersion\\":\\"1.05\\",\\"userIdentity\\":{\\"type\\":\\"IAMUser\\",\\"principalId\\":\\"AIDAIRUNBBKT2UKVMBDMM\\",\\"arn\\":\\"arn:aws:iam::792677813823:user/flands\\",\\"accountId\\":\\"792677813823\\",\\"accessKeyId\\":\\"AKIAJDNI5LT67QRAUMIQ\\",\\"userName\\":\\"flands\\"},\\"eventTime\\":\\"2018-06-14T17:17:56Z\\",\\"eventSource\\":\\"ec2.amazonaws.com\\",\\"eventName\\":\\"DescribeSubnets\\",\\"awsRegion\\":\\"ca-central-1\\",\\"sourceIPAddress\\":\\"13.56.178.189\\",\\"userAgent\\":\\"aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8\\",\\"requestParameters\\":{\\"subnetSet\\":{},\\"filterSet\\":{\\"items\\":[{\\"name\\":\\"vpc-id\\",\\"valueSet\\":{\\"items\\":[{\\"value\\":\\"vpc-04e3326d\\"}]}}]}},\\"responseElements\\":null,\\"requestID\\":\\"03c4406b-42dc-4172-8beb-d76e15b9d69f\\",\\"eventID\\":\\"c9931287-acd4-478f-aa24-f77c8d297f71\\",\\"eventType\\":\\"AwsApiCall\\",\\"recipientAccountId\\":\\"unittest9\\"}",
       "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
-      "userIdentityAccessKeyId": "AKIAJDNI5LT67QRAUMIQ",
-      "userIdentityAccountId": "792677813823",
-      "userIdentityArn": "arn:aws:iam::792677813823:user/flands",
-      "userIdentityPrincipalId": "AIDAIRUNBBKT2UKVMBDMM",
-      "userIdentityType": "IAMUser",
-      "userIdentityUserName": "flands",
+      "userIdentity_accessKeyId": "AKIAJDNI5LT67QRAUMIQ",
+      "userIdentity_accountId": "792677813823",
+      "userIdentity_arn": "arn:aws:iam::792677813823:user/flands",
+      "userIdentity_principalId": "AIDAIRUNBBKT2UKVMBDMM",
+      "userIdentity_type": "IAMUser",
+      "userIdentity_userName": "flands",
     },
     Object {
       "awsRegion": "ca-central-1",
@@ -54,11 +50,9 @@ Object {
       "log_type": "aws_cloud_trail",
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
-      "requestParameters": Object {
-        "availabilityZoneSet": Object {},
-      },
       "responseElements": null,
       "sourceIPAddress": "13.56.178.189",
+      "text": "{\\"eventVersion\\":\\"1.05\\",\\"eventTime\\":\\"2018-06-14T17:17:56Z\\",\\"eventSource\\":\\"ec2.amazonaws.com\\",\\"eventName\\":\\"DescribeSubnets\\",\\"awsRegion\\":\\"ca-central-1\\",\\"sourceIPAddress\\":\\"13.56.178.189\\",\\"userAgent\\":\\"aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8\\",\\"requestParameters\\":{\\"availabilityZoneSet\\":{}},\\"responseElements\\":null,\\"requestID\\":\\"03c4406b-42dc-4172-8beb-d76e15b9d69f\\",\\"eventID\\":\\"c9931287-acd4-478f-aa24-f77c8d297f71\\",\\"eventType\\":\\"AwsApiCall\\",\\"recipientAccountId\\":\\"unittest9\\"}",
       "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
     },
     Object {
@@ -73,18 +67,30 @@ Object {
       "log_type": "aws_cloud_trail",
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
-      "requestParameters": Object {
-        "availabilityZoneSet": Object {},
-      },
+      "requestParameters_bucketName": "myawsbucket",
+      "requestParameters_host": Array [
+        "s3.us-west-2.amazonaws.com",
+      ],
+      "requestParameters_versioning": Array [
+        "",
+      ],
       "responseElements": null,
       "sourceIPAddress": "13.56.178.189",
+      "text": "{\\"eventVersion\\":\\"1.05\\",\\"userIdentity\\":{\\"type\\":\\"IAMUser\\",\\"principalId\\":\\"AIDAIRUNBBKT2UKVMBDMM\\",\\"arn\\":\\"arn:aws:iam::792677813823:user/flands\\",\\"accountId\\":\\"792677813823\\",\\"accessKeyId\\":\\"AKIAJDNI5LT67QRAUMIQ\\",\\"userName\\":\\"flands\\",\\"sessionContext\\":{\\"attributes\\":{\\"mfaAuthenticated\\":\\"false\\",\\"creationDate\\":\\"20131102T010628Z\\"},\\"sessionIssuer\\":{\\"type\\":\\"Role\\",\\"principalId\\":\\"AROAIDPPEZS35WEXAMPLE\\",\\"arn\\":\\"arn:aws:iam::123456789012:role/RoleToBeAssumed\\",\\"accountId\\":\\"123456789012\\",\\"userName\\":\\"RoleToBeAssumed\\"}}},\\"eventTime\\":\\"2018-06-14T17:17:56Z\\",\\"eventSource\\":\\"ec2.amazonaws.com\\",\\"eventName\\":\\"DescribeSubnets\\",\\"awsRegion\\":\\"ca-central-1\\",\\"sourceIPAddress\\":\\"13.56.178.189\\",\\"userAgent\\":\\"aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8\\",\\"requestParameters\\":{\\"host\\":[\\"s3.us-west-2.amazonaws.com\\"],\\"bucketName\\":\\"myawsbucket\\",\\"versioning\\":[\\"\\"]},\\"responseElements\\":null,\\"requestID\\":\\"03c4406b-42dc-4172-8beb-d76e15b9d69f\\",\\"eventID\\":\\"c9931287-acd4-478f-aa24-f77c8d297f71\\",\\"eventType\\":\\"AwsApiCall\\",\\"recipientAccountId\\":\\"unittest9\\"}",
       "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
-      "userIdentityAccessKeyId": "AKIAJDNI5LT67QRAUMIQ",
-      "userIdentityAccountId": "792677813823",
-      "userIdentityArn": "arn:aws:iam::792677813823:user/flands",
-      "userIdentityPrincipalId": "AIDAIRUNBBKT2UKVMBDMM",
-      "userIdentityType": "IAMUser",
-      "userIdentityUserName": "flands",
+      "userIdentity_accessKeyId": "AKIAJDNI5LT67QRAUMIQ",
+      "userIdentity_accountId": "792677813823",
+      "userIdentity_arn": "arn:aws:iam::792677813823:user/flands",
+      "userIdentity_principalId": "AIDAIRUNBBKT2UKVMBDMM",
+      "userIdentity_sessionContext_attributes_creationDate": "20131102T010628Z",
+      "userIdentity_sessionContext_attributes_mfaAuthenticated": "false",
+      "userIdentity_sessionContext_sessionIssuer_accountId": "123456789012",
+      "userIdentity_sessionContext_sessionIssuer_arn": "arn:aws:iam::123456789012:role/RoleToBeAssumed",
+      "userIdentity_sessionContext_sessionIssuer_principalId": "AROAIDPPEZS35WEXAMPLE",
+      "userIdentity_sessionContext_sessionIssuer_type": "Role",
+      "userIdentity_sessionContext_sessionIssuer_userName": "RoleToBeAssumed",
+      "userIdentity_type": "IAMUser",
+      "userIdentity_userName": "flands",
     },
   ],
 }
@@ -105,32 +111,28 @@ Object {
       "log_type": "aws_cloud_trail",
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
-      "requestParameters": Object {
-        "filterSet": Object {
-          "items": Array [
-            Object {
-              "name": "vpc-id",
-              "valueSet": Object {
-                "items": Array [
-                  Object {
-                    "value": "vpc-04e3326d",
-                  },
-                ],
+      "requestParameters_filterSet_items": Array [
+        Object {
+          "name": "vpc-id",
+          "valueSet": Object {
+            "items": Array [
+              Object {
+                "value": "vpc-04e3326d",
               },
-            },
-          ],
+            ],
+          },
         },
-        "subnetSet": Object {},
-      },
+      ],
       "responseElements": null,
       "sourceIPAddress": "13.56.178.189",
+      "text": "{\\"eventVersion\\":\\"1.05\\",\\"userIdentity\\":{\\"type\\":\\"IAMUser\\",\\"principalId\\":\\"AIDAIRUNBBKT2UKVMBDMM\\",\\"arn\\":\\"arn:aws:iam::792677813823:user/flands\\",\\"accountId\\":\\"792677813823\\",\\"accessKeyId\\":\\"AKIAJDNI5LT67QRAUMIQ\\",\\"userName\\":\\"flands\\"},\\"eventTime\\":\\"2018-06-14T17:17:56Z\\",\\"eventSource\\":\\"ec2.amazonaws.com\\",\\"eventName\\":\\"DescribeSubnets\\",\\"awsRegion\\":\\"ca-central-1\\",\\"sourceIPAddress\\":\\"13.56.178.189\\",\\"userAgent\\":\\"aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8\\",\\"requestParameters\\":{\\"subnetSet\\":{},\\"filterSet\\":{\\"items\\":[{\\"name\\":\\"vpc-id\\",\\"valueSet\\":{\\"items\\":[{\\"value\\":\\"vpc-04e3326d\\"}]}}]}},\\"responseElements\\":null,\\"requestID\\":\\"03c4406b-42dc-4172-8beb-d76e15b9d69f\\",\\"eventID\\":\\"c9931287-acd4-478f-aa24-f77c8d297f71\\",\\"eventType\\":\\"AwsApiCall\\",\\"recipientAccountId\\":\\"unittest9\\"}",
       "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
-      "userIdentityAccessKeyId": "AKIAJDNI5LT67QRAUMIQ",
-      "userIdentityAccountId": "792677813823",
-      "userIdentityArn": "arn:aws:iam::792677813823:user/flands",
-      "userIdentityPrincipalId": "AIDAIRUNBBKT2UKVMBDMM",
-      "userIdentityType": "IAMUser",
-      "userIdentityUserName": "flands",
+      "userIdentity_accessKeyId": "AKIAJDNI5LT67QRAUMIQ",
+      "userIdentity_accountId": "792677813823",
+      "userIdentity_arn": "arn:aws:iam::792677813823:user/flands",
+      "userIdentity_principalId": "AIDAIRUNBBKT2UKVMBDMM",
+      "userIdentity_type": "IAMUser",
+      "userIdentity_userName": "flands",
     },
     Object {
       "awsRegion": "ca-central-1",
@@ -144,11 +146,9 @@ Object {
       "log_type": "aws_cloud_trail",
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
-      "requestParameters": Object {
-        "availabilityZoneSet": Object {},
-      },
       "responseElements": null,
       "sourceIPAddress": "13.56.178.189",
+      "text": "{\\"eventVersion\\":\\"1.05\\",\\"eventTime\\":\\"2018-06-14T17:17:56Z\\",\\"eventSource\\":\\"ec2.amazonaws.com\\",\\"eventName\\":\\"DescribeSubnets\\",\\"awsRegion\\":\\"ca-central-1\\",\\"sourceIPAddress\\":\\"13.56.178.189\\",\\"userAgent\\":\\"aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8\\",\\"requestParameters\\":{\\"availabilityZoneSet\\":{}},\\"responseElements\\":null,\\"requestID\\":\\"03c4406b-42dc-4172-8beb-d76e15b9d69f\\",\\"eventID\\":\\"c9931287-acd4-478f-aa24-f77c8d297f71\\",\\"eventType\\":\\"AwsApiCall\\",\\"recipientAccountId\\":\\"unittest9\\"}",
       "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
     },
     Object {
@@ -163,18 +163,30 @@ Object {
       "log_type": "aws_cloud_trail",
       "recipientAccountId": "unittest9",
       "requestID": "03c4406b-42dc-4172-8beb-d76e15b9d69f",
-      "requestParameters": Object {
-        "availabilityZoneSet": Object {},
-      },
+      "requestParameters_bucketName": "myawsbucket",
+      "requestParameters_host": Array [
+        "s3.us-west-2.amazonaws.com",
+      ],
+      "requestParameters_versioning": Array [
+        "",
+      ],
       "responseElements": null,
       "sourceIPAddress": "13.56.178.189",
+      "text": "{\\"eventVersion\\":\\"1.05\\",\\"userIdentity\\":{\\"type\\":\\"IAMUser\\",\\"principalId\\":\\"AIDAIRUNBBKT2UKVMBDMM\\",\\"arn\\":\\"arn:aws:iam::792677813823:user/flands\\",\\"accountId\\":\\"792677813823\\",\\"accessKeyId\\":\\"AKIAJDNI5LT67QRAUMIQ\\",\\"userName\\":\\"flands\\",\\"sessionContext\\":{\\"attributes\\":{\\"mfaAuthenticated\\":\\"false\\",\\"creationDate\\":\\"20131102T010628Z\\"},\\"sessionIssuer\\":{\\"type\\":\\"Role\\",\\"principalId\\":\\"AROAIDPPEZS35WEXAMPLE\\",\\"arn\\":\\"arn:aws:iam::123456789012:role/RoleToBeAssumed\\",\\"accountId\\":\\"123456789012\\",\\"userName\\":\\"RoleToBeAssumed\\"}}},\\"eventTime\\":\\"2018-06-14T17:17:56Z\\",\\"eventSource\\":\\"ec2.amazonaws.com\\",\\"eventName\\":\\"DescribeSubnets\\",\\"awsRegion\\":\\"ca-central-1\\",\\"sourceIPAddress\\":\\"13.56.178.189\\",\\"userAgent\\":\\"aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8\\",\\"requestParameters\\":{\\"host\\":[\\"s3.us-west-2.amazonaws.com\\"],\\"bucketName\\":\\"myawsbucket\\",\\"versioning\\":[\\"\\"]},\\"responseElements\\":null,\\"requestID\\":\\"03c4406b-42dc-4172-8beb-d76e15b9d69f\\",\\"eventID\\":\\"c9931287-acd4-478f-aa24-f77c8d297f71\\",\\"eventType\\":\\"AwsApiCall\\",\\"recipientAccountId\\":\\"unittest9\\"}",
       "userAgent": "aws-sdk-java/1.11.170 Linux/4.4.121-k8s Java_HotSpot(TM)_64-Bit_Server_VM/25.162-b31/1.8.0_162 scala/2.11.8",
-      "userIdentityAccessKeyId": "AKIAJDNI5LT67QRAUMIQ",
-      "userIdentityAccountId": "792677813823",
-      "userIdentityArn": "arn:aws:iam::792677813823:user/flands",
-      "userIdentityPrincipalId": "AIDAIRUNBBKT2UKVMBDMM",
-      "userIdentityType": "IAMUser",
-      "userIdentityUserName": "flands",
+      "userIdentity_accessKeyId": "AKIAJDNI5LT67QRAUMIQ",
+      "userIdentity_accountId": "792677813823",
+      "userIdentity_arn": "arn:aws:iam::792677813823:user/flands",
+      "userIdentity_principalId": "AIDAIRUNBBKT2UKVMBDMM",
+      "userIdentity_sessionContext_attributes_creationDate": "20131102T010628Z",
+      "userIdentity_sessionContext_attributes_mfaAuthenticated": "false",
+      "userIdentity_sessionContext_sessionIssuer_accountId": "123456789012",
+      "userIdentity_sessionContext_sessionIssuer_arn": "arn:aws:iam::123456789012:role/RoleToBeAssumed",
+      "userIdentity_sessionContext_sessionIssuer_principalId": "AROAIDPPEZS35WEXAMPLE",
+      "userIdentity_sessionContext_sessionIssuer_type": "Role",
+      "userIdentity_sessionContext_sessionIssuer_userName": "RoleToBeAssumed",
+      "userIdentity_type": "IAMUser",
+      "userIdentity_userName": "flands",
     },
   ],
   "structure": "simple",
