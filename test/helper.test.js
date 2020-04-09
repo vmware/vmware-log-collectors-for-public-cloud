@@ -1,7 +1,7 @@
 const nock = require('nock');
 const { sendLogs } = require('../src/index');
 
-Date.now = jest.genMockFunction().mockReturnValue(1538769915817);
+Date.now = jest.fn(() => 1538769915817);
 
 const {
   gzipLogs,
