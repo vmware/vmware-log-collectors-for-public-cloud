@@ -614,7 +614,7 @@ const handler = (event, context) => {
     return;
   }
 
-  const ingestionUrl = process.env.LogIntelligence_API_Url || 'https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream';
+  const ingestionUrl = process.env.LogIntelligence_API_Url || 'https://data.mgmt.cloud.vmware.com/le-mans/v1/streams/ingestion-pipeline-stream';
 
   const tagRegexMap = new Map();
   Object.getOwnPropertyNames(process.env).forEach((v) => {

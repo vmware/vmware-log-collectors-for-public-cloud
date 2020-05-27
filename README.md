@@ -7,7 +7,7 @@ and sending the logs to vRealize log insight cloud - VRLIC.
 ## Try it out
 To try out the project, you need to do two things:
 1. Deploy the code of this project as a Lambda function in your AWS environment.
-2. Configure the Lambda function to collect CloudWatch or CloudTrail logs or both.
+2. Configure the Lambda function to collect one of the below AWS services.
 
 The following sections describe each of the above two steps in detail.
 
@@ -17,8 +17,7 @@ The following sections describe each of the above two steps in detail.
 3. Set the 'Handler' field to 'index.handler'. Set the timeout of the Lambda function to 60 seconds.
 4. Select 'Code Entry Type' to 'Upload a .zip file'.
 5. Upload the zip file from the latest release in the 'Function Package'.
-6. Add the below two environment variables which are required for VRLIC
-    * LogIntelligence_API_Url = https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream
+6. Add the below environment variable which are required for VRLIC
     * LogIntelligence_API_Token = TOKEN taken from logging into VRLIC page
 
 ### Configure the Lambda function
