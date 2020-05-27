@@ -221,7 +221,7 @@ const processLogTextAsJson = (logText) => {
     });
     return mergedRecords;
   } catch (e) {
-    return mergedRecords
+    return mergedRecords;
   }
 };
 
@@ -539,7 +539,7 @@ const handleCloudTrailLogs = (event, context, lintEnv) => {
 const handleS3logs = (event, context, lintEnv) => {
   const collector = new S3HttpCollector(lintEnv);
   // eslint-disable-next-line prefer-destructuring
-  const processS3BucketLogs = process.env.processS3BucketLogs;
+  const processS3BucketLogs = process.env.S3Bucket_Logs;
   if (process.env.CloudTrail_Logs === 'true') {
     handleCloudTrailLogs(event, context, lintEnv);
   } else if (processS3BucketLogs === 'true') {

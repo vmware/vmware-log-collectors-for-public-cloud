@@ -95,10 +95,26 @@ Object {
       "kubernetes_namespace_name": "kube-system",
       "kubernetes_pod_id": "ac4bdfc1-9dc0-11e7-8b62-005056b549b6",
       "kubernetes_pod_name": "weave-net-4n4kc",
+      "log": "INFO: 2017/10/02 06:44:13.214543 Discovered remote MAC 62:a1:3d:f6:eb:65 at 62:a1:3d:f6:eb:65(kube-235)
+",
       "log_type": "aws_cloud_watch",
       "stream": "stderr",
-      "text": "INFO: 2017/10/02 06:44:13.214543 Discovered remote MAC 62:a1:3d:f6:eb:65 at 62:a1:3d:f6:eb:65(kube-235)
-",
+      "text": "{
+    \\"log\\": \\"INFO: 2017/10/02 06:44:13.214543 Discovered remote MAC 62:a1:3d:f6:eb:65 at 62:a1:3d:f6:eb:65(kube-235)\\\\n\\",
+    \\"stream\\": \\"stderr\\",
+    \\"docker\\": {
+        \\"container_id\\": \\"5b15e87886a7ca5f7ebc73a15aa9091c9c0f880ee2974515749e16710367462c\\"
+    },
+    \\"kubernetes\\": {
+        \\"container_name\\": \\"weave\\",
+        \\"namespace_name\\": \\"kube-system\\",
+        \\"pod_name\\": \\"weave-net-4n4kc\\",
+        \\"pod_id\\": \\"ac4bdfc1-9dc0-11e7-8b62-005056b549b6\\",
+        \\"labels\\": {\\"controller-revision-hash\\": \\"2720543195\\",\\"name\\": \\"weave-net\\",\\"pod-template-generation\\": \\"1\\"},
+        \\"host\\": \\"kube-234\\",
+        \\"master_url\\": \\"https://10.96.0.1:443/api\\"
+    }
+}",
     },
   ],
   "logGroup": "/aws/lambda/runbook",
@@ -186,5 +202,24 @@ Object {
     "b",
     "c",
   ],
+  "text": "
+      { 
+        \\"field1\\": { 
+          \\"field11\\": \\"value11\\",
+          \\"field12\\": \\"value12\\"
+        },
+        \\"field2\\": \\"value2\\", 
+        \\"field3\\": 3,
+        \\"field4\\": {
+          \\"field41\\": [\\"a\\", \\"b\\", \\"c\\"]
+        }
+      }
+    ",
+}
+`;
+
+exports[`processLogTextAsJson should process log text not in JSON format 1`] = `
+Object {
+  "text": " { \\"field2\\": \\"value2\\", field3: \\"value3\\" } ",
 }
 `;
