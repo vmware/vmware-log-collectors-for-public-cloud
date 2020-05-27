@@ -1,8 +1,8 @@
 # vmware-log-collectors-for-aws
 
 ## Overview
-The project provides an AWS Lambda function for collecting CloudWatch and CloudTrail logs
-and sending the logs to VMware Log Intelligence.
+The project provides an AWS Lambda function for collecting AWS services logs
+and sending the logs to vRealize log insight cloud - VRLIC.
 
 ## Try it out
 To try out the project, you need to do two things:
@@ -13,10 +13,13 @@ The following sections describe each of the above two steps in detail.
 
 ### Deploy the Lambda function
 1. In the AWS Web Console, create a new Lambda function in AWS.
-2. Select Node.js 8.10 as the runtime. Click on 'Create Function'.
+2. Select Node.js 12.X as the runtime. Click on 'Create Function'.
 3. Set the 'Handler' field to 'index.handler'. Set the timeout of the Lambda function to 60 seconds.
 4. Select 'Code Entry Type' to 'Upload a .zip file'.
 5. Upload the zip file from the latest release in the 'Function Package'.
+6. Add the below two environment variables which are required for VRLIC
+    * LogIntelligence_API_Url = https://data.cloud.symphony-dev.com/le-mans/v1/streams/ingestion-pipeline-stream
+    * LogIntelligence_API_Token = TOKEN taken from logging into VRLIC page
 
 ### Configure the Lambda function
 In the AWS Web Console, configure an environment variable for the Lambda function. The key of the environment variable should be 'LogIntelligence_API_Token'. The value of the environment variable should be a valid VMware Log Intelligence API token.
@@ -25,7 +28,11 @@ In the AWS Web Console, configure an environment variable for the Lambda functio
 In AWS Web Console, add a 'CloudWatch Logs' trigger for the Lambda function. In the configurations of the trigger, specify the CloudWatch log group whose logs you want to collect and send to VMware Log Intelligence. You can add more 'CloudWatch Logs' triggers if you want to send logs of multiple log groups through the Lambda function to VMware Log Intelligence.
 
 #### 2. CloudTrail Logs
-If you want to collect CloudTrail logs, then you need to configure CloudTrail to send logs to an S3 bucket. Then in the AWS Web Console, add an 'S3' trigger for the Lambda function. In the configurations of the trigger, specify the S3 bucket to which the CloudTrail logs are sent. Once the trigger is configured and enabled, whenever logs go from CloudTrail to the S3 bucket, the Lambda function will be invoked and the logs will be sent to VMware Log Intelligence. You can refer to https://docs.aws.amazon.com/lambda/latest/dg/with-cloudtrail.html for more details.
+If you want to collect CloudTrail logs, then you need to configure CloudTrail to send logs to an S3 bucket.
+ Then in the AWS Web Console, add an 'S3' trigger for the Lambda function. In the configurations of the trigger, 
+ specify the S3 bucket to which the CloudTrail logs are sent. Add a new environment in lambda with KEY = CloudTrail_Logs and 
+ VALUE = true. Once the trigger is configured and enabled, whenever logs go from CloudTrail to the S3 bucket, the Lambda function will be invoked and the logs will be 
+ sent to VMware Log Intelligence. You can refer to https://docs.aws.amazon.com/lambda/latest/dg/with-cloudtrail.html for more details.
 
 #### 3. S3 events
 Amazon S3 can publish events (for example, when an object is created in a bucket) to AWS Lambda as well as any file(supports .gz, .tar.gz, .zip as well) created in the bucket and invoke your Lambda function by passing the event data as a parameter.
@@ -37,7 +44,8 @@ The page describes the process of adding trigger and function roles required for
 #### 4. S3 data
 Amazon S3 publish any file(supports .gz, .tar.gz, .zip as well) created in the bucket and invoke your Lambda function by passing the event data as a parameter.
 This lambda captures all the Object once it is CREATED, which is provided by AWS 
-S3 bucket console. Once the bucket is ready we need to add necessary permissions to lambda to
+S3 bucket console. Add a new environment in lambda with KEY = S3Bucket_Logs and VALUE = true
+Once the bucket is ready we need to add necessary permissions to lambda to
 get access to the s3 bucket and add it as a trigger. https://docs.aws.amazon.com/lambda/latest/dg/with-s3.html
 The page describes the process of adding trigger and function roles required for lambda.
 Note: Lambda's max execution time is 15 mins. If the file is huge then it lambda might not finish in time and will eventually fail.

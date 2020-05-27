@@ -33,7 +33,7 @@ describe('processLogTextAsJson', () => {
 
   it('should process log text not in JSON format', () => {
     const textJson = processLogTextAsJson(' { "field2": "value2", field3: "value3" } ');
-    expect(textJson).toEqual({});
+    expect(textJson).toMatchSnapshot();
   });
 });
 

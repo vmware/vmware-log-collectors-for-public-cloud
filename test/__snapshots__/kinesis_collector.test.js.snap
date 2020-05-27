@@ -56,10 +56,23 @@ Object {
       "kubernetes_container_name": "user-service",
       "kubernetes_namespace_name": "default",
       "kubernetes_pod_name": "user-service-0d25baf",
+      "log": "2014/09/25 21:15:03 I am sample log message
+",
       "log_type": "aws_kinesis",
       "stream": "stderr",
-      "text": "2014/09/25 21:15:03 I am sample log message
-",
+      "text": "{
+	\\"log\\": \\"2014/09/25 21:15:03 I am sample log message\\\\n\\",
+	\\"stream\\": \\"stderr\\",
+	\\"time\\": \\"2018–09–12T10:25:41.499185026Z\\",
+	\\"kubernetes\\": {
+		\\"namespace_name\\": \\"default\\",
+		\\"pod_name\\": \\"user-service-0d25baf\\",
+		\\"container_name\\": \\"user-service\\"
+	},
+	\\"docker\\": {
+		\\"container_id\\": \\"4667aa8e36ff8c9ed9d28a227e93a6718eb6498ead5807d4c4d515338041baee\\"
+	}
+}",
       "time": "2018–09–12T10:25:41.499185026Z",
     },
   ],
