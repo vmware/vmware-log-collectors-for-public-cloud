@@ -234,6 +234,16 @@ const processSNSLogs = (SNSLogRecords) => {
   }
 };
 
+/**
+ * This code process EventBridge Logs
+ * @param {*} EventBridgeLogRecords 
+ */
+const processEventBridgeLogs = (EventBridgeLogRecords) => {
+  const ingestionTime = Date.now();
+  EventBridgeLogRecords.ingest_timestamp = ingestionTime;
+  EventBridgeLogRecords.log_type = 'aws_eventbridge';
+};
+
 /* eslint-disable no-param-reassign */
 const processS3Logs = (s3LogRecords) => {
   const ingestionTime = Date.now();
@@ -305,6 +315,16 @@ const sendSNSLogs = (SNSLogs, collector) => {
   return collector.postDataToStream(data);
 };
 
+/**
+ * This code send EventBridge Logs on vrli
+ * @param {*} EventBridgeLogs 
+ * @param {*} collector 
+ */
+const sendEventBridgeLogs = (EventBridgeLogs, collector) => {
+  const data = collector.processLogsJson(EventBridgeLogs);
+  return collector.postDataToStream(data);
+};
+
 class SQSHttpCollector extends Collector {
   constructor(lintEnv) {
     super('simple', lintEnv);
@@ -334,6 +354,21 @@ class SNSHttpCollector extends Collector {
 
     processSNSLogs(logsJson.Records);
     return JSON.stringify(logsJson.Records);
+  }
+}
+
+class EventBridgeHttpCollector extends Collector {
+  constructor(lintEnv) {
+    super('simple', lintEnv);
+  }
+
+  /**
+   * This code process EventBridge Logs
+   * @param {*} logsJson 
+   */
+  processLogsJson(logsJson) {
+    processEventBridgeLogs(logsJson);
+    return JSON.stringify(logsJson);
   }
 }
 
@@ -455,7 +490,8 @@ function readAndPushTarGZLogs(collector, logStream, Bucket, region, sourceIPAddr
 
 const sendS3ContentLogs = (collector, contentType, event) => {
   const Bucket = event.Records[0].s3.bucket.name;
-  const Key = event.Records[0].s3.object.key;
+  //Code for decoding the specific character 
+  const Key = decodeURIComponent(event.Records[0].s3.object.key);
   const region = event.Records[0].awsRegion;
   const sourceIPAddress = event.Records[0].requestParameters.sourceIPAddress;
   const s3 = new aws.S3();
@@ -470,6 +506,16 @@ const sendS3ContentLogs = (collector, contentType, event) => {
         readAndPushTarGZLogs(collector, logStream, Bucket, region, sourceIPAddress, Key);
       } else {
         lineReader = readline.createInterface({ input: logStream.pipe(zlib.createGunzip()) });
+        readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, Key);
+      }
+      break;
+   //Code for processing .gz logs  
+    case 'application/octet-stream':
+      if (Key.endsWith('.gz')) {
+        lineReader = readline.createInterface({ input: logStream.pipe(zlib.createGunzip()) });
+        readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, Key);
+      } else {
+        lineReader = readline.createInterface({ input: logStream });
         readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, Key);
       }
       break;
@@ -544,7 +590,8 @@ const handleS3logs = (event, context, lintEnv) => {
     handleCloudTrailLogs(event, context, lintEnv);
   } else if (processS3BucketLogs === 'true') {
     const srcBucket = event.Records[0].s3.bucket.name;
-    const srcKey = event.Records[0].s3.object.key;
+    //Code for decoding the specific character 
+    const srcKey = decodeURIComponent(event.Records[0].s3.object.key);
 
     getS3HeadObject(srcBucket, srcKey)
       .then((s3Metadata) => {
@@ -569,6 +616,18 @@ const handleSNSlogs = (event, context, lintEnv) => {
   const collector = new SNSHttpCollector(lintEnv);
   sendSNSLogs(event, collector);
 };
+
+/**
+ * This code handle EventBridge Logs
+ * @param {*} event 
+ * @param {*} context 
+ * @param {*} lintEnv 
+ */
+const handleEventBridgelogs = (event, context, lintEnv) => {
+  const collector = new EventBridgeHttpCollector(lintEnv);
+  sendEventBridgeLogs(event, collector);
+};
+
 
 const handleKinesisLogs = (event, context, lintEnv) => {
   const collector = new KinesisHttpCollector(lintEnv);
@@ -632,6 +691,11 @@ const handler = (event, context) => {
   if (event.Records) {
     handleRecords(event, context, lintEnv);
   }
+
+  if (process.env.EventBridge_Logs === 'true') {
+    handleEventBridgelogs(event, context, lintEnv);
+  }
+
 };
 
 module.exports = {
@@ -649,4 +713,5 @@ module.exports = {
   processLogTextAsJson,
   SNSHttpCollector,
   sendKinesisLogs,
+  EventBridgeHttpCollector,
 };
