@@ -87,6 +87,10 @@ https://docs.aws.amazon.com/lambda/latest/dg/with-sns.html This page shows steps
 and necessary roles to be provided to lambda function. Once the SNS topics and roles are ready, replace the 
 lambda code from the code taken in this repo. One use case of SNS data is we can configure RDS events to
 flow through SNS messages (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Events.html).
+
+#### 12. EventBridge data
+In AWS Web Console, Create a EventBridge Rule, Select target as 'Lambda Function' and choose the 'Function' using which logs will be injected on VMware vRealize Log Insight Cloud . 
+Add a new environment in lambda with KEY = EventBridge_Logs and VALUE = true. Once the trigger is configured and enabled, whenever events go from EventBridge, the Lambda function will be invoked and the logs will be sent to VMware vRealize Log Insight Cloud.
  
 ## Contributing
 

@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventBridgeHttpCollector processLogsJson should process logs JSON 1`] = `
+Object {
+  "account": "827066587692",
+  "detail": Object {
+    "currentState": "QUEUED",
+    "queryExecutionId": "f11ed4a0-7c17-4172-a04f-56f79646dbe9",
+    "sequenceNumber": "1",
+    "statementType": "DDL",
+    "versionId": "0",
+    "workgroupName": "primary",
+  },
+  "detail-type": "Athena Query State Change",
+  "id": "8908e14b-ec95-cca1-c478-57ea5929f5e8",
+  "ingest_timestamp": 1538769915817,
+  "log_type": "aws_eventbridge",
+  "region": "us-east-2",
+  "resources": Array [],
+  "source": "aws.athena",
+  "time": "2020-09-23T07:01:44Z",
+  "version": "0",
+}
+`;
