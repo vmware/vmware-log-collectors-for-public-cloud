@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MSKHttpCollector processLogsJson should process logs JSON 1`] = `
+Object {
+  "Records": Array [
+    Object {
+      "eventSource": "aws:kafka",
+      "eventSourceArn": "arn:aws:kafka:us-east-2:827066587692:cluster/MyCluster/1cbf212b-3937-4536-a3b0-c09868d7e5f5-4",
+      "ingest_timestamp": 1538769915817,
+      "log_type": "aws_msk",
+      "offset": 6,
+      "partition": 0,
+      "timestamp": 1601289409497,
+      "timestampType": "CREATE_TIME",
+      "topic": "mytopic",
+      "value": "Message #7",
+    },
+  ],
+}
+`;

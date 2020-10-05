@@ -89,6 +89,38 @@ const flattenSNSObject = (record) => {
   }
 };
 
+/**
+ * This code flatten MSK Object
+ * @param {*} record 
+ */
+const flattenMSKObject = (record) => {
+  const array = [];
+  for (let key in record.records) {
+    record.records[key].map((mskrecord) => {
+      for (const property of Object.keys(mskrecord)) {
+        const newPropName = `${property}`;
+        if (`${property}` === 'value') {
+          mskrecord[newPropName] = Buffer.from(mskrecord[property], 'base64').toString();
+        } else {
+          mskrecord[newPropName] = mskrecord[property];
+        }
+      }
+      array.push(mskrecord);
+    })
+  }
+  delete record.records;
+  for (const key of Object.keys(record)) {
+    var attributName = `${key}`;
+    
+    for (const property of Object.keys(array)) {
+      array[property][attributName] = record[key];
+    }
+    delete record[attributName];
+  }
+ 
+  record.Records = array;
+};
+
 /* eslint-disable no-param-reassign */
 const processCloudTrailLogs = (cloudTrailLogRecords) => {
   const ingestionTime = Date.now();
@@ -244,6 +276,31 @@ const processEventBridgeLogs = (EventBridgeLogRecords) => {
   EventBridgeLogRecords.log_type = 'aws_eventbridge';
 };
 
+/**
+ * This code process CodeCommit Logs
+ * @param {*} CodeCommitLogRecords 
+ */
+const processCodeCommitLogs = (CodeCommitLogRecords) => {
+  const ingestionTime = Date.now();
+  for (const record of CodeCommitLogRecords) {
+    record.ingest_timestamp = ingestionTime;
+    record.log_type = 'aws_codecommit';
+  }
+};
+
+/**
+ * This code process MSK Logs
+ * @param {*} MSKLogRecords 
+ */
+const processMSKLogs = (MSKLogRecords) => {
+  flattenMSKObject(MSKLogRecords);
+  for (const record of MSKLogRecords.Records) {
+  const ingestionTime = Date.now();
+  record.ingest_timestamp = ingestionTime;
+  record.log_type = 'aws_msk';
+  }
+};
+
 /* eslint-disable no-param-reassign */
 const processS3Logs = (s3LogRecords) => {
   const ingestionTime = Date.now();
@@ -325,6 +382,27 @@ const sendEventBridgeLogs = (EventBridgeLogs, collector) => {
   return collector.postDataToStream(data);
 };
 
+/**
+ * This code send CodeCommit Logs on vrli
+ * @param {*} CodeCommitLogs 
+ * @param {*} collector 
+ */
+const sendCodeCommitLogs = (CodeCommitLogs, collector) => {
+  const data = collector.processLogsJson(CodeCommitLogs);
+  return collector.postDataToStream(data);
+};
+
+/**
+ * This code send MSK Logs on vrli
+ * @param {*} MSKLogs 
+ * @param {*} collector 
+ */
+const sendMSKLogs = (MSKLogs, collector) => {
+  const data = collector.processLogsJson(MSKLogs);
+  return collector.postDataToStream(data);
+};
+
+
 class SQSHttpCollector extends Collector {
   constructor(lintEnv) {
     super('simple', lintEnv);
@@ -369,6 +447,44 @@ class EventBridgeHttpCollector extends Collector {
   processLogsJson(logsJson) {
     processEventBridgeLogs(logsJson);
     return JSON.stringify(logsJson);
+  }
+}
+
+
+class CodeCommitHttpCollector extends Collector {
+  constructor(lintEnv) {
+    super('simple', lintEnv);
+  }
+
+  /**
+   * This code process CodeCommit Logs
+   * @param {*} logsJson 
+   */
+  processLogsJson(logsJson) {
+    if (!logsJson.Records) {
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
+    }
+
+    processCodeCommitLogs(logsJson.Records);
+    return JSON.stringify(logsJson.Records);
+  }
+}
+
+class MSKHttpCollector extends Collector {
+  constructor(lintEnv) {
+    super('simple', lintEnv);
+  }
+
+  /**
+   * This code process MSK Logs
+   * @param {*} logsJson 
+   */
+  processLogsJson(logsJson) {
+    processMSKLogs(logsJson);
+    if (!logsJson.Records) {
+      throw new Error('JSON blob does not have log records. Skip processing the blob.');
+    }
+    return JSON.stringify(logsJson.Records);
   }
 }
 
@@ -628,6 +744,31 @@ const handleEventBridgelogs = (event, context, lintEnv) => {
   sendEventBridgeLogs(event, collector);
 };
 
+/**
+ * This code handle CodeCommit Logs
+ * @param {*} event 
+ * @param {*} context 
+ * @param {*} lintEnv 
+ */
+const handleCodeCommitlogs = (event, context, lintEnv) => {
+  const collector = new CodeCommitHttpCollector(lintEnv);
+  sendCodeCommitLogs(event, collector)
+    .then(result => handleResult(result, context))
+    .catch(error => handleError(error, context));
+};
+
+/**
+ * This code handle MSK Logs
+ * @param {*} event 
+ * @param {*} context 
+ * @param {*} lintEnv 
+ */
+const handleMSKlogs = (event, context, lintEnv) => {
+  const collector = new MSKHttpCollector(lintEnv);
+  sendMSKLogs(event, collector)
+    .then(result => handleResult(result, context))
+    .catch(error => handleError(error, context));
+};
 
 const handleKinesisLogs = (event, context, lintEnv) => {
   const collector = new KinesisHttpCollector(lintEnv);
@@ -646,9 +787,14 @@ const handleDefaultRecords = (event, context, lintEnv) => {
 };
 
 const handleRecords = (event, context, lintEnv) => {
-  let source = event.Records[0].eventSource;
+  let source = [];
+  if (event.eventSource && event.eventSource === 'aws:kafka') {
+    source = event.eventSource;
+  }else{
+     source = event.Records[0].eventSource;
   if (event.Records[0].EventSource) {
     source = event.Records[0].EventSource;
+    }
   }
   switch (source) {
     case 'aws:s3': handleS3logs(event, context, lintEnv);
@@ -661,6 +807,10 @@ const handleRecords = (event, context, lintEnv) => {
       break;
     case 'aws:sns': handleSNSlogs(event, context, lintEnv);
       break;
+    case 'aws:codecommit': handleCodeCommitlogs(event, context, lintEnv);
+      break;
+    case 'aws:kafka': handleMSKlogs(event, context, lintEnv);
+      break;  
     default: handleDefaultRecords(event, context, lintEnv);
       break;
   }
@@ -688,7 +838,7 @@ const handler = (event, context) => {
     handleCloudWatchLogs(event, context, lintEnv, tagRegexMap);
   }
 
-  if (event.Records) {
+  if (event.Records || event.eventSource) {
     handleRecords(event, context, lintEnv);
   }
 
@@ -714,4 +864,6 @@ module.exports = {
   SNSHttpCollector,
   sendKinesisLogs,
   EventBridgeHttpCollector,
+  CodeCommitHttpCollector,
+  MSKHttpCollector,
 };
