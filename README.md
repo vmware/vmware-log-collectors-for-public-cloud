@@ -89,9 +89,20 @@ lambda code from the code taken in this repo. One use case of SNS data is we can
 flow through SNS messages (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Events.html).
 
 #### 12. EventBridge data
-In AWS Web Console, Create a EventBridge Rule, Select target as 'Lambda Function' and choose the 'Function' using which logs will be injected on VMware vRealize Log Insight Cloud . 
+We can have Lambda function to process events to EventBridge. With Amazon EventBridge, you can create an EventBridge rule that triggers on an event emitted by an AWS service.
+https://docs.aws.amazon.com/eventbridge/latest/userguide/create-eventbridge-rule.html This page shows steps to create Eventebridge rules. Select target as 'Lambda Function' and choose the 'Function' using which logs will be injected on VMware vRealize Log Insight Cloud.
 Add a new environment in lambda with KEY = EventBridge_Logs and VALUE = true. Once the trigger is configured and enabled, whenever events go from EventBridge, the Lambda function will be invoked and the logs will be sent to VMware vRealize Log Insight Cloud.
- 
+
+#### 13. CodeCommit Logs
+We can have Lambda function to process events of CodeCommit repository. You can add codecommit as a trigger to lambda function so that when events occures in the repository, lambda function will be invoked and the logs will be sent to VMware vRealize Log Insight Cloud.
+https://docs.aws.amazon.com/codecommit/latest/userguide/how-to-notify-lambda.html This page helps in 
+creating a lambda function for CodeCommit and necessary roles to be provided to lambda function.
+
+#### 14. MSK Logs
+We can use a AWS Lambda function to process the publish messages to the Amazon MSK topic. With Amazon MSK, you can build and run applications that use Apache Kafka to process streaming data.
+Lambda service internally polls for new records or messages from the event source, and then synchronously invokes the target Lambda function. Lambda reads the messages in batches and provides these to your function as an event payload.
+https://aws.amazon.com/blogs/compute/using-amazon-msk-as-an-event-source-for-aws-lambda/ This link helps in setting up MSK and adding it as a trigger to our lambda function. 
+
 ## Contributing
 
 The vmware-log-collectors-for-aws project team welcomes contributions from the community. Before you start working with vmware-log-collectors-for-aws, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch. For more detailed information, refer to [CONTRIBUTING.md](CONTRIBUTING.md).
