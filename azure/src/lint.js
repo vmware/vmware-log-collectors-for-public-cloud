@@ -73,21 +73,6 @@ const sendHttpRequest = (options, postData) => new Promise((resolve, reject) => 
   req.end();
 });
 
-const gunzipData = zippedData => new Promise((resolve, reject) => {
-  zlib.gunzip(
-    zippedData,
-    (error, unzippedLogs) => (error ? reject(error) : resolve(unzippedLogs))
-  );
-});
-
-const gzipLogs = logsJson => new Promise((resolve, reject) => {
-  const logsBuffer = Buffer.from(JSON.stringify(logsJson), 'utf-8');
-  zlib.gzip(
-    logsBuffer,
-    (error, zippedLogs) => (error ? reject(error) : resolve(zippedLogs))
-  );
-});
-
 class Collector {
   constructor(structure, lintEnv) {
     this.structure = structure;
@@ -129,8 +114,6 @@ module.exports = {
   shortenKey,
   flattenJson,
   sendHttpRequest,
-  gzipLogs,
-  gunzipData,
   LIntHttpEnv,
   LIntKafkaEnv,
   Collector
