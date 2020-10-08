@@ -1,8 +1,8 @@
 
 
-# Contributing to vmware-log-collectors-for-aws
+# Contributing to vmware-log-collectors-for-public-cloud
 
-The vmware-log-collectors-for-aws project team welcomes contributions from the community. Before you start working with vmware-log-collectors-for-aws, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch.
+The vmware-log-collectors-for-public-cloud project team welcomes contributions from the community. Before you start working with vmware-log-collectors-for-public-cloud, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch.
 
 ## Contribution Flow
 
@@ -17,7 +17,7 @@ This is a rough outline of what a contributor's workflow looks like:
 Example:
 
 ``` shell
-git remote add upstream https://github.com/vmware/vmware-log-collectors-for-aws.git
+git remote add upstream https://github.com/vmware/vmware-log-collectors-for-public-cloud.git
 git checkout -b my-new-feature master
 git commit -a
 git push origin my-new-feature

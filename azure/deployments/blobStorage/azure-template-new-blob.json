@@ -1,0 +1,205 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sites_VMwareAzureLogsFunctionApp_name": {
+      "defaultValue": "[concat('VMwareLogsFunctionApp', uniqueString(resourceGroup().id))]",
+      "type": "String"
+    },
+    "storageAccounts_VMwareBlobStorage_name": {
+      "defaultValue": "[concat('vmwarebs',uniqueString(resourceGroup().id))]",
+      "type": "String"
+    },
+    "serverfarms_VMwareLogsAppServicePlan_name": {
+      "defaultValue": "[concat('VMwareLogsAppServicePlan', uniqueString(resourceGroup().id))]",
+      "type": "String"
+    },
+    "storageAccounts_VMwareLogsAppStorage_name": {
+      "defaultValue": "[concat('vmwarelogs', uniqueString(resourceGroup().id))]",
+      "type": "String"
+    },
+    "repoURL": {
+      "defaultValue": "https://github.com/vmware/vmware-log-collectors-for-public-cloud.git",
+      "type": "String"
+    },
+    "branch": {
+      "defaultValue": "master",
+      "type": "String"
+    },
+    "API_Url": {
+      "defaultValue": "vRealize Log Insight Cloud API Url",
+      "type": "String"
+    },
+    "API_Token": {
+      "defaultValue": "vRealize Log Insight Cloud API Key",
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "sku": {
+        "name": "Standard_RAGRS",
+        "tier": "Standard"
+      },
+      "kind": "StorageV2",
+      "name": "[parameters('storageAccounts_VMwareBlobStorage_name')]",
+      "apiVersion": "2019-04-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "encryption": {
+          "services": {
+            "file": {
+              "enabled": true
+            },
+            "blob": {
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "Storage",
+      "name": "[parameters('storageAccounts_VMwareLogsAppStorage_name')]",
+      "apiVersion": "2019-04-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "encryption": {
+          "services": {
+            "file": {
+              "enabled": true
+            },
+            "blob": {
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic",
+        "size": "Y1",
+        "family": "Y",
+        "capacity": 0
+      },
+      "kind": "functionapp",
+      "name": "[parameters('serverfarms_VMwareLogsAppServicePlan_name')]",
+      "apiVersion": "2016-09-01",
+      "location": "[resourceGroup().location]",
+      "scale": null,
+      "properties": {
+        "name": "[parameters('serverfarms_VMwareLogsAppServicePlan_name')]",
+        "workerTierName": null,
+        "adminSiteName": null,
+        "hostingEnvironmentProfile": null,
+        "perSiteScaling": false,
+        "reserved": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "kind": "functionapp",
+      "name": "[parameters('sites_VMwareAzureLogsFunctionApp_name')]",
+      "apiVersion": "2016-08-01",
+      "location": "[resourceGroup().location]",
+      "scale": null,
+      "properties": {
+        "enabled": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_VMwareLogsAppServicePlan_name'))]",
+        "reserved": false,
+        "httpsOnly": true,
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~2"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "~10"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "node"
+            },
+            {
+              "name": "FUNCTION_APP_EDIT_MODE",
+              "value": "readwrite"
+            },
+            {
+              "name": "Project",
+              "value": "azure/target/blobstorage/"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccounts_VMwareLogsAppStorage_name'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_VMwareLogsAppStorage_name')),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "AzureWebJobsDashboard",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccounts_VMwareLogsAppStorage_name'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_VMwareLogsAppStorage_name')),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "vRealize_Log_Insight_Cloud_API_Url",
+              "value": "[parameters('API_Url')]"
+            },
+            {
+              "name": "LogsStorageConnectionString",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccounts_VMwareBlobStorage_name'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_VMwareBlobStorage_name')),'2015-05-01-preview').key1,';EndpointSuffix=core.windows.net')]"
+            },
+            {
+              "name": "vRealize_Log_Insight_Cloud_API_Token",
+              "value": "[parameters('API_Token')]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites/', parameters('sites_VMwareAzureLogsFunctionApp_name'))]"
+          ],
+          "properties": {
+            "RepoUrl": "[parameters('repoURL')]",
+            "branch": "[parameters('branch')]",
+            "IsManualIntegration": true
+          }
+        }
+      ],
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_VMwareLogsAppServicePlan_name'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_VMwareLogsAppStorage_name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2019-04-01",
+      "name": "[concat(parameters('storageAccounts_VMwareBlobStorage_name'), '/default/blobstoragecontainer')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_VMwareBlobStorage_name'))]"
+      ],
+      "properties": {
+        "publicAccess": "Blob"
+      }
+    }
+  ]
+}
