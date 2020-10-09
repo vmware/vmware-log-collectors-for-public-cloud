@@ -219,13 +219,13 @@ const findTriggerType = () => {
  * @param context
  */
 const handler = (event, context) => {
-    const apiToken = process.env.LogIntelligence_API_Token;
+    const apiToken = process.env.vRealize_Log_Insight_Cloud_API_Token;
     if (!apiToken) {
         handleError('The API token is missing. Please configure it in an environment variable of the function');
         return;
     }
 
-    const ingestionUrl = process.env.LogIntelligence_API_Url;
+    const ingestionUrl = process.env.vRealize_Log_Insight_Cloud_API_Url;
     if (!ingestionUrl) {
         handleError('The Ingestion Url is missing. Please configure it in an environment variable of the function');
         return;
