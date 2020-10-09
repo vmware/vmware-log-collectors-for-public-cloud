@@ -92,11 +92,13 @@ const fetchServiceName = (LogRecords) => {
     var resourceInfo = LogRecords.resourceId.substring(1, LogRecords.resourceId.length);
     var resourceArr = resourceInfo.split('/');
     resourceArr.forEach(resource => {
-        if (resource.startsWith("MICROSOFT.")) {
+        if (resource.toUpperCase().startsWith("MICROSOFT.")) {
             LogRecords.event_provider = "AZURE_" + resource.split('.')[1];
         }
     });
-    LogRecords.eventsource = resourceArr[resourceArr.length - 2];
+    if(resourceArr[resourceArr.length - 2].toUpperCase()!=="PROVIDERS"){
+        LogRecords.eventsource = resourceArr[resourceArr.length - 2];
+    }
 };
 
 /**
@@ -217,13 +219,13 @@ const findTriggerType = () => {
  * @param context
  */
 const handler = (event, context) => {
-    const apiToken = process.env.vRealize_Log_Insight_Cloud_API_Token;
+    const apiToken = process.env.LogIntelligence_API_Token;
     if (!apiToken) {
         handleError('The API token is missing. Please configure it in an environment variable of the function');
         return;
     }
 
-    const ingestionUrl = process.env.vRealize_Log_Insight_Cloud_API_Url;
+    const ingestionUrl = process.env.LogIntelligence_API_Url;
     if (!ingestionUrl) {
         handleError('The Ingestion Url is missing. Please configure it in an environment variable of the function');
         return;
