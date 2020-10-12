@@ -31,7 +31,6 @@ module.exports = async function (context, eventHubMessages) {
 const processLogTextAsJson = (logText) => {
     const keys = [];
     const mergedRecords = {};
-    //mergedRecords.blob = logText;
     try {
         let textJson = JSON.parse(logText);
         textJson = flattenJson(textJson);
@@ -84,6 +83,9 @@ const processLogs = (LogRecords, logSource) => {
  * Fetch service name and provider from the resource ID string
  * and adding those properties to event_provider,eventsource.
  * @param LogRecords
+ * Example: "resourceId": "/SUBSCRIPTIONS/0E0B74F5-FE07-494D-91BC-8EB65E41438B/RESOURCEGROUPS
+ * /TEMPLATE_RESOURCEGROUP/PROVIDERS/MICROSOFT.SEARCH/SEARCHSERVICES/VMWARESEARCH"
+ * End Result: event_provider="AZURE_SEARCH" & eventsource="SEARCHSERVICES"
  */
 const fetchServiceName = (LogRecords) => {
     if (!LogRecords.resourceId) {
@@ -93,7 +95,7 @@ const fetchServiceName = (LogRecords) => {
     var resourceArr = resourceInfo.split('/');
     resourceArr.forEach(resource => {
         if (resource.toUpperCase().startsWith("MICROSOFT.")) {
-            LogRecords.event_provider = "AZURE_" + resource.split('.')[1];
+            LogRecords.event_provider = "AZURE_" + resource.split('.')[1].toUpperCase();
         }
     });
     if(resourceArr[resourceArr.length - 2].toUpperCase()!=="PROVIDERS"){
@@ -139,7 +141,7 @@ const sendServiceLogsFromBlobStorage = (serviceLogs, collector, trigger) => {
     }
     logs.forEach(log => {
         const data = collector.processLogsJsonFromBlobStorage(log);
-        return collector.postDataToStream(data);
+        collector.postDataToStream(data);
     });
 };
 
@@ -176,8 +178,8 @@ class ServiceHttpCollector extends Collector {
  * @param context
  */
 const handleError = (error, context) => {
-    context.fail(error);
     console.log(error);
+    context.fail(error);
 };
 
 /**
