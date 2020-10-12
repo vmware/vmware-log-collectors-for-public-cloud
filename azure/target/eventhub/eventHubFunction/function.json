@@ -1,0 +1,13 @@
+{
+  "disabled": false,
+  "bindings": [{
+      "type": "eventHubTrigger",
+      "name": "eventHubMessages",
+      "direction": "in",
+      "eventHubName": "azure-operational-logs",
+      "connection": "AzureEventHubLogsConnectionString",
+      "cardinality": "many",
+      "consumerGroup": "$Default"
+    }
+  ]
+}

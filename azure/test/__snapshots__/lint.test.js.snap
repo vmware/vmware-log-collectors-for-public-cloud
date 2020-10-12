@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`flattenJson should flatten arrays in JSON 1`] = `
+Object {
+  "0": "a",
+  "1": "b",
+  "2": "c",
+}
+`;
+
+exports[`flattenJson should flatten nested arrays and objects 1`] = `
+Object {
+  "field1_field11": "value11",
+  "field1_field12": "value12",
+  "field2": "value2",
+  "field3": 3,
+  "field4_field41": Array [
+    "a",
+    "b",
+    "c",
+  ],
+}
+`;
+
+exports[`flattenJson should work when there is nothing to flatten 1`] = `
+Object {
+  "field1": "value1",
+  "field2": "value2",
+}
+`;

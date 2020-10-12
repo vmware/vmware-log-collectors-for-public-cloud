@@ -1,0 +1,30 @@
+{
+  "name": "azure-log-collector",
+  "version": "1.0.0",
+  "description": "Azure function to fetch logs from Event Hub and Blob Storage and send it to vRLIC.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint src/** test/**",
+    "test": "jest test",
+    "coverage": "jest --collectCoverageFrom=src/**.js --coverage test",
+    "build": "cp src/*.js ./target/eventhub/eventHubFunction/ && cp src/*.js ./target/blobstorage/blobStorageFunction/"
+  },
+  "jest": {
+    "verbose": true,
+    "testURL": "http://localhost/",
+    "testPathIgnorePatterns": [
+      "<rootDir>/test/helper.test.js",
+      "<rootDir>/node_modules/"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jest": "^21.7.0",
+    "jest": "^25.3.0",
+    "jsdom": "11.11.0",
+    "nock": "^9.6.1"
+  }
+}

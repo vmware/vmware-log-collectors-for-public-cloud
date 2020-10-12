@@ -1,8 +1,8 @@
-VMware Log Collectors for AWS
+VMware Log Collectors for Public Cloud
 
-Copyright (c) 2018 VMware, Inc.				
+Copyright (c) 2018 VMware, Inc.
 
-The MIT license (the “License”) set forth below applies to all parts of the VMware Log Collectors for AWS project.  You may not use this file except in compliance with the License. 
+The MIT license (the ï¿½Licenseï¿½) set forth below applies to all parts of the VMware Log Collectors for Public Cloud project.  You may not use this file except in compliance with the License.ï¿½
 
 MIT License
 
