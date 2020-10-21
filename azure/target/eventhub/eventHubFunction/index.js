@@ -88,17 +88,29 @@ const processLogs = (LogRecords, logSource) => {
  * End Result: event_provider="AZURE_SEARCH" & eventsource="SEARCHSERVICES"
  */
 const fetchServiceName = (LogRecords) => {
-    if (!LogRecords.resourceId) {
+    var logResourceId = "";
+    const activityCategories = ["ADMINISTRATIVE","SECURITY","SERVICEHEALTH","ALERT","RECOMMENDATION","POLICY","AUTOSCALE","RESOURCEHEALTH"];
+    if (LogRecords.resourceId) {
+        logResourceId = LogRecords.resourceId;
+    } else if(LogRecords.ResourceId) {
+        logResourceId = LogRecords.ResourceId;
+    } else {
         error('Could not find resourceId for the log record');
     }
-    var resourceInfo = LogRecords.resourceId.substring(1, LogRecords.resourceId.length);
+    var resourceInfo = logResourceId.substring(1, logResourceId.length);
     var resourceArr = resourceInfo.split('/');
     resourceArr.forEach(resource => {
         if (resource.toUpperCase().startsWith("MICROSOFT.")) {
             LogRecords.event_provider = "AZURE_" + resource.split('.')[1].toUpperCase();
         }
     });
-    if(resourceArr[resourceArr.length - 2].toUpperCase()!=="PROVIDERS"){
+    for(var index=0 ; index<activityCategories.length; index++) {
+        if (activityCategories[index] === LogRecords.category.toUpperCase()) {
+            LogRecords.category = "ACTIVITYLOGS_" + activityCategories[index];
+            break;
+        }
+    }
+    if (resourceArr[resourceArr.length - 2].toUpperCase() !== "PROVIDERS") {
         LogRecords.eventsource = resourceArr[resourceArr.length - 2];
     }
 };
@@ -127,6 +139,8 @@ const sendServiceLogsFromEventHub = (ServiceLogs, collector, trigger) => {
  */
 const sendServiceLogsFromBlobStorage = (serviceLogs, collector, trigger) => {
     var logs;
+    var logRecords;
+    var logArray = [];
     if (typeof serviceLogs === 'string') {
         logs = serviceLogs.trim().split('\n');
     } else if (Buffer.isBuffer(serviceLogs)) {
@@ -139,8 +153,16 @@ const sendServiceLogsFromBlobStorage = (serviceLogs, collector, trigger) => {
             .trim()
             .split('\n');
     }
-    logs.forEach(log => {
-        const data = collector.processLogsJsonFromBlobStorage(log);
+    logRecords = processLogTextAsJson(logs);
+    if (logRecords.records) {
+        logArray = logRecords.records;
+    } else {
+        logs.forEach(log => {
+            logArray.push(processLogTextAsJson(log));
+        });
+    }
+    logArray.forEach(log => {
+        var data = collector.processLogsJsonFromBlobStorage(log);
         collector.postDataToStream(data);
     });
 };
@@ -166,7 +188,6 @@ class ServiceHttpCollector extends Collector {
             throw new Error('JSON blob does not have log records. Skip processing the blob.');
         }
         const logSource = "blob_storage";
-        logsJson = processLogTextAsJson(logsJson);
         processLogs(logsJson, logSource);
         return JSON.stringify(logsJson);
     }
