@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: "Sends AWS logs to vRealize Log Insight Cloud using a Lambda function."
+Parameters:
+    NameOfFunction:
+        Type: "String"
+        Description: "Enter name of function"
+        Default: ""
+    APIUrl:
+        Type: "String"
+        Description: "Data Url of vRealize Log Insight Cloud"
+        Default: ""
+
+    APIToken:
+        Type: "String"
+        Description: "API key of vRealize Log Insight Cloud"
+        Default: ""
+Outputs:
+    awslogstovrlicloud:
+      Description: "Send logs to vRealize Log Insight Cloud."
+      Value: !GetAtt awslogstovrlicloud.Arn
+Resources:
+  awslogstovrlicloud:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Runtime: nodejs12.x
+      Handler: index.handler
+      CodeUri: Lambda.zip
+      FunctionName: !Ref NameOfFunction
+      MemorySize: 512
+      Timeout: 900
+      Environment:
+        Variables:
+            LogIntelligence_API_Token: !Ref APIToken
+            LogIntelligence_API_Url: !Ref APIUrl
