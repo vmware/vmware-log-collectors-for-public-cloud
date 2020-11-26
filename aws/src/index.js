@@ -607,7 +607,8 @@ function readAndPushTarGZLogs(collector, logStream, Bucket, region, sourceIPAddr
 const sendS3ContentLogs = (collector, contentType, event) => {
   const Bucket = event.Records[0].s3.bucket.name;
   //Code for decoding the specific character 
-  const Key = decodeURIComponent(event.Records[0].s3.object.key);
+  const srcKey = (event.Records[0].s3.object.key).replace(/\+/g, " "); 
+  const Key = decodeURIComponent(srcKey);
   const region = event.Records[0].awsRegion;
   const sourceIPAddress = event.Records[0].requestParameters.sourceIPAddress;
   const s3 = new aws.S3();
@@ -707,8 +708,8 @@ const handleS3logs = (event, context, lintEnv) => {
   } else if (processS3BucketLogs === 'true') {
     const srcBucket = event.Records[0].s3.bucket.name;
     //Code for decoding the specific character 
-    const srcKey = decodeURIComponent(event.Records[0].s3.object.key);
-
+    const key = (event.Records[0].s3.object.key).replace(/\+/g, " "); 
+    const srcKey = decodeURIComponent(key);
     getS3HeadObject(srcBucket, srcKey)
       .then((s3Metadata) => {
         sendS3ContentLogs(collector, s3Metadata.ContentType, event);
