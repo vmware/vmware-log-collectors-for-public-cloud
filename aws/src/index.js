@@ -560,7 +560,7 @@ const sendLogs = (zippedLogs, collector) => gunzipData(zippedLogs)
   .then(data => collector.postDataToStream(data));
 
 function getBatchSizeInBytes(batch) {
-  const g = JSON.stringify(batch).replace(/[[\],"]/g, '');
+  const g = batch.replace(/[[\],"]/g, '');
   return g.length;
 }
 
@@ -568,7 +568,7 @@ function readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, 
   let currBatch = [];
   lineReader.on('line', function (line) {
     const parsedLine = processS3Line(Bucket, region, sourceIPAddress, Key, line);
-    const sizeInBytes = getBatchSizeInBytes(currBatch + parsedLine);
+    const sizeInBytes = getBatchSizeInBytes(JSON.stringify(currBatch) + JSON.stringify(parsedLine));
     if (sizeInBytes > (batch_size)) {
       collector.postDataToStream(JSON.stringify(currBatch));
       currBatch = [];
