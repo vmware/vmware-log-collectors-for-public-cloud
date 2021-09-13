@@ -13,6 +13,8 @@ const {
     shortenKey,
 } = require('./lint');
 
+const BATCH_SIZE_IN_MB = 0.9 * 1024 * 1024;
+
 /**
  * This is the base method that will act as entrypoint for the azure supported trigger.
  * @param context
@@ -89,10 +91,10 @@ const processLogs = (LogRecords, logSource) => {
  */
 const fetchServiceName = (LogRecords) => {
     var logResourceId = "";
-    const activityCategories = ["ADMINISTRATIVE","SECURITY","SERVICEHEALTH","ALERT","RECOMMENDATION","POLICY","AUTOSCALE","RESOURCEHEALTH"];
+    const activityCategories = ["ADMINISTRATIVE", "SECURITY", "SERVICEHEALTH", "ALERT", "RECOMMENDATION", "POLICY", "AUTOSCALE", "RESOURCEHEALTH"];
     if (LogRecords.resourceId) {
         logResourceId = LogRecords.resourceId;
-    } else if(LogRecords.ResourceId) {
+    } else if (LogRecords.ResourceId) {
         logResourceId = LogRecords.ResourceId;
     } else {
         error('Could not find resourceId for the log record');
@@ -104,7 +106,7 @@ const fetchServiceName = (LogRecords) => {
             LogRecords.event_provider = "AZURE_" + resource.split('.')[1].toUpperCase();
         }
     });
-    for(var index=0 ; index<activityCategories.length; index++) {
+    for (var index = 0; index < activityCategories.length; index++) {
         if (activityCategories[index] === LogRecords.category.toUpperCase()) {
             LogRecords.category = "ACTIVITYLOGS_" + activityCategories[index];
             break;
@@ -116,18 +118,27 @@ const fetchServiceName = (LogRecords) => {
 };
 
 /**
- *Processing and sending Log to vrli cloud for Event Hub.
+ *Processing and sending Log to vrli cloud for Event Hub. Logs will be sent in batches.
  * @param ServiceLogs
  * @param collector
  */
 const sendServiceLogsFromEventHub = (ServiceLogs, collector, trigger) => {
+    var currBatch = [];
     if (ServiceLogs[0].records) {
         ServiceLogs.forEach((message) => {
             message.records.forEach((record) => {
                 const data = collector.processLogsJsonFromEventHub(record);
-                collector.postDataToStream(data);
+                const sizeInBytes = getBatchSizeInBytes(JSON.stringify(currBatch) + JSON.stringify(data));
+                if (sizeInBytes > (BATCH_SIZE_IN_MB)) {
+                    collector.postDataToStream("[" + currBatch + "]");
+                    currBatch = [];
+                }
+                currBatch.push(data);
             });
         });
+        if (currBatch.length > 0) {
+            collector.postDataToStream("[" + currBatch + "]");
+        }
     }
 };
 
@@ -161,11 +172,114 @@ const sendServiceLogsFromBlobStorage = (serviceLogs, collector, trigger) => {
             logArray.push(processLogTextAsJson(log));
         });
     }
-    logArray.forEach(log => {
-        var data = collector.processLogsJsonFromBlobStorage(log);
-        collector.postDataToStream(data);
-    });
+    processLogDataForStream(collector, logArray);
 };
+
+/**
+ * Prepare logs batches and send them to vRLIC
+ * @param collector
+ * @param logArray
+ */
+const processLogDataForStream = (collector, logArray) => {
+    var currBatch = [];
+
+    logArray.forEach(log => {
+        if (log.category == 'NetworkSecurityGroupFlowEvent') {
+            var nsgLogs = processNSGLogData(log);
+            nsgLogs.forEach(nsg => {
+                var data = collector.processLogsJsonFromBlobStorage(nsg);
+                const sizeInBytes = getBatchSizeInBytes(JSON.stringify(currBatch) + JSON.stringify(data));
+                if (sizeInBytes > (BATCH_SIZE_IN_MB)) {
+                    collector.postDataToStream("[" + currBatch + "]");
+                    currBatch = [];
+                }
+                currBatch.push(data);
+            });
+        } else {
+            var data = collector.processLogsJsonFromBlobStorage(log);
+            const sizeInBytes = getBatchSizeInBytes(JSON.stringify(currBatch) + JSON.stringify(data));
+            if (sizeInBytes > (BATCH_SIZE_IN_MB)) {
+                collector.postDataToStream("[" + currBatch + "]");
+                currBatch = [];
+            }
+            currBatch.push(data);
+        }
+    });
+    if (currBatch.length > 0) {
+        collector.postDataToStream("[" + currBatch + "]");
+    }
+}
+
+/**
+ *
+ * @param batch
+ * @returns {*}
+ */
+const getBatchSizeInBytes = (batch) => {
+    const g = batch.replace(/[[\],"]/g, '');
+    return g.length;
+}
+
+/**
+ * When NSG logs will be flowing in, they need to processed and add missing properties in th logs
+ * Currently supported versions are 1 & 2. Once logs are processed, it will return the JSON array
+ * @param nsgLogs
+ * @returns {[]}
+ */
+const processNSGLogData = (nsgLogs) => {
+    //Supported version 1 & 2
+    const flowPropertiesName = ["timestamp", "source_ip", "destination_ip", "source_port", "destination_port",
+        "protocol", "traffic_flow", "traffic_decision", "flow_state", "packets_source_to_destination",
+        "bytes_sent_source_to_destination", "packets_destination_to_source", "bytes_sent_destination_to_source"];
+
+    var properties = nsgLogs.properties;
+    var propertiesData = [];
+
+    if (properties && (properties.Version == 1 || properties.Version == 2)) {
+        if (properties.flows && properties.flows.length > 0) {
+            properties.flows.forEach(flows1 => {
+                var rule = flows1.rule;
+                if (flows1.flows && flows1.flows.length > 0) {
+                    flows1.flows.forEach(flows2 => {
+                        var mac = flows2.mac;
+                        if (flows2.flowTuples && flows2.flowTuples.length > 0) {
+                            flows2.flowTuples.forEach(flowTuple => {
+                                var processedLog = Object.assign({}, nsgLogs);
+
+                                /*removing both keys because these keys are not requires for nsg logs and already
+                                getting timestamp with logs
+                                 */
+                                delete processedLog.properties;
+                                delete processedLog.ingest_timestamp;
+                                processedLog['rule'] = rule;
+                                processedLog['mac'] = mac;
+                                processedLog['version'] =
+                                    (properties.Version) ? properties.Version : properties.version;
+
+                                var tuples = flowTuple.split(',');
+                                for (var l = 0; l < tuples.length; l++) {
+
+                                    //When properties are not blank
+                                    if (tuples[l] != '') {
+                                        if ((flowPropertiesName[l] == 'timestamp') &&
+                                            (typeof tuples[l] === 'string')) {
+                                            const timestamp = parseInt(tuples[l], 10);
+                                            processedLog[flowPropertiesName[l]] = timestamp || tuples[l];
+                                            continue;
+                                        }
+                                        processedLog[flowPropertiesName[l]] = tuples[l];
+                                    }
+                                }
+                                propertiesData.push(processedLog);
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    }
+    return propertiesData;
+}
 
 class ServiceHttpCollector extends Collector {
     constructor(lintEnv) {
@@ -175,7 +289,7 @@ class ServiceHttpCollector extends Collector {
     //Processing Logs for eventhub
     processLogsJsonFromEventHub(logsJson) {
         if (!logsJson) {
-            throw new Error('JSON blob does not have log records. Skip processing the blob.');
+            throw new Error('Event Hub does not have log records. Skip processing the event hub.');
         }
         const logSource = "event_hub";
         processLogs(logsJson, logSource);
@@ -231,8 +345,8 @@ const activeTrigger = (event, context, lintEnv) => {
 const findTriggerType = () => {
     let fs = require('fs');
     let rawdata = fs.readFileSync(__dirname + '/function.json', 'utf8');
-    let student = JSON.parse(rawdata.replace(/^\ufeff/g, ""));
-    return student.bindings[0].type;
+    let triggerType = JSON.parse(rawdata.replace(/^\ufeff/g, ""));
+    return triggerType.bindings[0].type;
 };
 
 /**
