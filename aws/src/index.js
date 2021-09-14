@@ -626,19 +626,15 @@ const sendS3ContentLogs = (collector, contentType, event) => {
         readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, Key);
       }
       break;
-    //Code for processing .gz logs  
-    case 'application/octet-stream':
-      if (Key.endsWith('.gz')) {
+    default:
+    //Code for processing .gz logs
+     if (Key.endsWith('.gz')) {
         lineReader = readline.createInterface({ input: logStream.pipe(zlib.createGunzip()) });
         readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, Key);
-      } else {
+     } else {
         lineReader = readline.createInterface({ input: logStream });
         readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, Key);
-      }
-      break;
-    default:
-      lineReader = readline.createInterface({ input: logStream });
-      readDataStream(collector, lineReader, Bucket, region, sourceIPAddress, Key);
+     }
   }
 };
 
