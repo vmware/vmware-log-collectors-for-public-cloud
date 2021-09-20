@@ -8,7 +8,7 @@ const readVaultData = (options) => new Promise((resolve, reject) => {
             if (res.statusCode < 200 || res.statusCode >= 300) {
                 reject(new Error(`statusCode: ${res.statusCode}, response: ${Buffer.concat(body).toString()}`));
             } else {
-                resolve(JSON.parse(Buffer.concat(body).toString()).data.data.LogIntelligence_API_Token);
+                resolve(JSON.parse(Buffer.concat(body).toString()).data.data.VRLIC_API_Token);
             }
         });
     });
