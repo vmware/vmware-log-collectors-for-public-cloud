@@ -231,6 +231,10 @@ const processNSGLogData = (nsgLogs) => {
     const flowPropertiesName = ["timestamp", "source_ip", "destination_ip", "source_port", "destination_port",
         "protocol", "traffic_flow", "traffic_decision", "flow_state", "packets_source_to_destination",
         "bytes_sent_source_to_destination", "packets_destination_to_source", "bytes_sent_destination_to_source"];
+    const legendsName = {
+        "protocol": {"T": "TCP", "U": "UDP"}, "traffic_flow": {"I": "Inbound", "O": "Outbound"},
+        "traffic_decision": {"A": "Allowed", "D": "Denied"}, "flow_state": {"B": "Begin", "C": "Continuing", "E": "End"}
+    };
 
     var properties = nsgLogs.properties;
     var propertiesData = [];
@@ -265,6 +269,12 @@ const processNSGLogData = (nsgLogs) => {
                                             (typeof tuples[l] === 'string')) {
                                             const timestamp = parseInt(tuples[l], 10);
                                             processedLog[flowPropertiesName[l]] = timestamp || tuples[l];
+                                            continue;
+                                        }
+                                        //Adding legends full name
+                                        if (legendsName[flowPropertiesName[l]]) {
+                                            processedLog[flowPropertiesName[l]] =
+                                                legendsName[flowPropertiesName[l]][tuples[l]];
                                             continue;
                                         }
                                         processedLog[flowPropertiesName[l]] = tuples[l];
