@@ -115,6 +115,14 @@
               "value": "readwrite"
             },
             {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccounts_VMwareLogsAppStorage_name'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_VMwareLogsAppStorage_name')),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[toLower(parameters('sites_VMwareAzureLogsFunctionApp_name'))]"
+            },
+            {
               "name": "Project",
               "value": "azure/target/eventhub/"
             },

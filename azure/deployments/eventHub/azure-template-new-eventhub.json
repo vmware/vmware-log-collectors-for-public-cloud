@@ -26,7 +26,7 @@
       "defaultValue": "VMwareRootManageSharedAccessKey",
       "type": "String"
     },
-    "consumergroups_$Default_name": {
+    "consumergroups_Default_name": {
       "defaultValue": "$Default",
       "type": "String"
     },
@@ -150,6 +150,14 @@
               "value": "readwrite"
             },
             {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccounts_VMwareLogsAppStorage_name'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_VMwareLogsAppStorage_name')),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[toLower(parameters('sites_VMwareAzureLogsFunctionApp_name'))]"
+            },
+            {
               "name": "Project",
               "value": "azure/target/eventhub/"
             },
@@ -237,7 +245,7 @@
     },
     {
       "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
-      "name": "[concat(parameters('namespaces_VMwareLogsNamespace_name'), '/', parameters('eventhubs_azure_operational_logs_name'), '/', parameters('consumergroups_$Default_name'))]",
+      "name": "[concat(parameters('namespaces_VMwareLogsNamespace_name'), '/', parameters('eventhubs_azure_operational_logs_name'), '/', parameters('consumergroups_Default_name'))]",
       "apiVersion": "2017-04-01",
       "location": "[resourceGroup().location]",
       "scale": null,
