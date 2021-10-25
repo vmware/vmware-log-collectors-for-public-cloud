@@ -21,17 +21,17 @@ The following sections describe each of the above two steps in detail.
     * VRLIC_API_Token = TOKEN taken from logging into VRLIC page
 
 ### Configure the Lambda function
-In the AWS Web Console, configure an environment variable for the Lambda function. The key of the environment variable should be 'VRLIC_API_Token'. The value of the environment variable should be a valid VMware Log Intelligence API token.
+In the AWS Web Console, configure an environment variable for the Lambda function. The key of the environment variable should be 'VRLIC_API_Token'. The value of the environment variable should be a valid vRealize Log Insight Cloud API token.
 
 #### 1. CloudWatch Logs
-In AWS Web Console, add a 'CloudWatch Logs' trigger for the Lambda function. In the configurations of the trigger, specify the CloudWatch log group whose logs you want to collect and send to VMware Log Intelligence. You can add more 'CloudWatch Logs' triggers if you want to send logs of multiple log groups through the Lambda function to VMware Log Intelligence.
+In AWS Web Console, add a 'CloudWatch Logs' trigger for the Lambda function. In the configurations of the trigger, specify the CloudWatch log group whose logs you want to collect and send to vRealize Log Insight Cloud. You can add more 'CloudWatch Logs' triggers if you want to send logs of multiple log groups through the Lambda function to vRealize Log Insight Cloud.
 
 #### 2. CloudTrail Logs
 If you want to collect CloudTrail logs, then you need to configure CloudTrail to send logs to an S3 bucket.
  Then in the AWS Web Console, add an 'S3' trigger for the Lambda function. In the configurations of the trigger, 
  specify the S3 bucket to which the CloudTrail logs are sent. Add a new environment in lambda with KEY = CloudTrail_Logs and 
  VALUE = true. Once the trigger is configured and enabled, whenever logs go from CloudTrail to the S3 bucket, the Lambda function will be invoked and the logs will be 
- sent to VMware Log Intelligence. You can refer to https://docs.aws.amazon.com/lambda/latest/dg/with-cloudtrail.html for more details.
+ sent to vRealize Log Insight Cloud. You can refer to https://docs.aws.amazon.com/lambda/latest/dg/with-cloudtrail.html for more details.
 
 #### 3. S3 events
 Amazon S3 can publish events (for example, when an object is created in a bucket) to AWS Lambda as well as any file(supports .gz, .tar.gz, .zip as well) created in the bucket and invoke your Lambda function by passing the event data as a parameter.
@@ -90,11 +90,11 @@ flow through SNS messages (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuid
 
 #### 12. EventBridge data
 We can have Lambda function to process events to EventBridge. With Amazon EventBridge, you can create an EventBridge rule that triggers on an event emitted by an AWS service.
-https://docs.aws.amazon.com/eventbridge/latest/userguide/create-eventbridge-rule.html This page shows steps to create Eventebridge rules. Select target as 'Lambda Function' and choose the 'Function' using which logs will be injected on VMware vRealize Log Insight Cloud.
-Add a new environment in lambda with KEY = EventBridge_Logs and VALUE = true. Once the trigger is configured and enabled, whenever events go from EventBridge, the Lambda function will be invoked and the logs will be sent to VMware vRealize Log Insight Cloud.
+https://docs.aws.amazon.com/eventbridge/latest/userguide/create-eventbridge-rule.html This page shows steps to create Eventebridge rules. Select target as 'Lambda Function' and choose the 'Function' using which logs will be injected on vRealize Log Insight Cloud.
+Add a new environment in lambda with KEY = EventBridge_Logs and VALUE = true. Once the trigger is configured and enabled, whenever events go from EventBridge, the Lambda function will be invoked and the logs will be sent to vRealize Log Insight Cloud.
 
 #### 13. CodeCommit Logs
-We can have Lambda function to process events of CodeCommit repository. You can add codecommit as a trigger to lambda function so that when events occures in the repository, lambda function will be invoked and the logs will be sent to VMware vRealize Log Insight Cloud.
+We can have Lambda function to process events of CodeCommit repository. You can add codecommit as a trigger to lambda function so that when events occures in the repository, lambda function will be invoked and the logs will be sent to vRealize Log Insight Cloud.
 https://docs.aws.amazon.com/codecommit/latest/userguide/how-to-notify-lambda.html This page helps in 
 creating a lambda function for CodeCommit and necessary roles to be provided to lambda function.
 
