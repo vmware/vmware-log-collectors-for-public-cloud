@@ -18,10 +18,10 @@ The following sections describe each of the above two steps in detail.
 4. Select 'Code Entry Type' to 'Upload a .zip file'.
 5. Upload the zip file from the latest release in the 'Function Package'.
 6. Add the below environment variable which are required for VRLIC
-    * LogIntelligence_API_Token = TOKEN taken from logging into VRLIC page
+    * VRLIC_API_Token = TOKEN taken from logging into VRLIC page
 
 ### Configure the Lambda function
-In the AWS Web Console, configure an environment variable for the Lambda function. The key of the environment variable should be 'LogIntelligence_API_Token'. The value of the environment variable should be a valid VMware Log Intelligence API token.
+In the AWS Web Console, configure an environment variable for the Lambda function. The key of the environment variable should be 'VRLIC_API_Token'. The value of the environment variable should be a valid VMware Log Intelligence API token.
 
 #### 1. CloudWatch Logs
 In AWS Web Console, add a 'CloudWatch Logs' trigger for the Lambda function. In the configurations of the trigger, specify the CloudWatch log group whose logs you want to collect and send to VMware Log Intelligence. You can add more 'CloudWatch Logs' triggers if you want to send logs of multiple log groups through the Lambda function to VMware Log Intelligence.
