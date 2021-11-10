@@ -858,9 +858,8 @@ const handler = (event, context) => {
             if (process.env.EventBridge_Logs === 'true') {
                 handleEventBridgelogs(event, context, lintEnv);
             }
-        }).catch(function(err) {
-            console.log(err);
-        });
+        }).catch( error => { handleError(error, context)});
+
     } else if (process.env.VRLIC_API_Token) {
         apiToken = process.env.VRLIC_API_Token;
         if (!apiToken) {
