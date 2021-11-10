@@ -22,11 +22,12 @@ The following sections describe each of the above two steps in detail.
 
 Now, we support lambda vault integration. To enable this integration following configuration is needed
 1. Vault should be configured with AWS IAM Auth to read the secret.
-2. Create the 'vault-lambda-extension' Layer on AWS by Following CLI command<br>
-curl --silent https://releases.hashicorp.com/vault-lambda-extension/0.5.0/vault-lambda-extension_0.5.0_linux_amd64.zip --output vault-lambda-extension.zip<br>
-aws lambda publish-layer-version --layer-name vault-lambda-extension --zip-file  "fileb://vault-lambda-extension.zip" --region "YOUR AWS REGION"
-3. Add the above created layer in Lambda Function.
-4. Add the following environment variables for vault integration
+2. Download the extension by below command<br>
+   curl --silent https://releases.hashicorp.com/vault-lambda-extension/0.5.0/vault-lambda-extension_0.5.0_linux_amd64.zip --output vault-lambda-extension.zip<br>
+3. Create the Layer by using AWS Lambda 'Layer'. Click on 'Create layer'.
+4. Provide the name and upload the .zip file which is downloaded in step 2.
+5. Add the above created layer in Lambda Function.
+6. Add the following environment variables for vault integration
     * VAULT_ADDR = Vault endpoint (e.g. https://myvault.com:8200)
     * VAULT_AUTH_PROVIDER = Set value 'aws'
     * VAULT_AUTH_ROLE = Provide vault role which is bounded with the AWS IAM principal arn
