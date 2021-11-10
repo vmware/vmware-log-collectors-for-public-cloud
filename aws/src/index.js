@@ -17,6 +17,9 @@ const zlib = require('zlib');
 const readline = require('readline');
 const unzip = require('unzip-stream');
 const tar = require('tar-stream');
+const {
+readVaultData
+} =require('./vault');
 
 const batch_size = 0.9 * 1024 * 1024;
 
@@ -819,35 +822,66 @@ const handleRecords = (event, context, lintEnv) => {
 };
 
 const handler = (event, context) => {
-  const apiToken = process.env.LogIntelligence_API_Token;
-  if (!apiToken) {
-    handleError('The API token is missing. Please configure it in an environment variable of the lambda function');
-    return;
-  }
+    let apiToken = null;
+    let lintEnv = null;
+    const ingestionUrl = process.env.VRLIC_API_Url || 'https://data.mgmt.cloud.vmware.com/le-mans/v1/streams/ingestion-pipeline-stream';
 
-  const ingestionUrl = process.env.LogIntelligence_API_Url || 'https://data.mgmt.cloud.vmware.com/le-mans/v1/streams/ingestion-pipeline-stream';
+    const tagRegexMap = new Map();
+    Object.getOwnPropertyNames(process.env).forEach((v) => {
+        if (v.startsWith('Tag_')) {
+            tagRegexMap.set(v.substring(4), new RegExp(process.env[v], 'i'));
+        }
+    });
+    if (process.env.VAULT_ADDR || process.env.VLE_VAULT_ADDR) {
+        const options = {
+            hostname: '127.0.0.1',
+            port: 8200,
+            path: '/v1/' + process.env.KV_SECRET_PATH,
+            method: 'GET'
+        }
+        readVaultData(options).then(function(token) {
+            apiToken = token;
+            if (!apiToken) {
+                handleError('The API token is missing in vault.');
+                return;
+            }
+            lintEnv = new LIntHttpEnv(`Bearer ${apiToken}`, ingestionUrl);
 
-  const tagRegexMap = new Map();
-  Object.getOwnPropertyNames(process.env).forEach((v) => {
-    if (v.startsWith('Tag_')) {
-      tagRegexMap.set(v.substring(4), new RegExp(process.env[v], 'i'));
+            if (event.awslogs) {
+                handleCloudWatchLogs(event, context, lintEnv, tagRegexMap);
+            }
+
+            if (event.Records || event.records) {
+                handleRecords(event, context, lintEnv);
+            }
+
+            if (process.env.EventBridge_Logs === 'true') {
+                handleEventBridgelogs(event, context, lintEnv);
+            }
+        }).catch( error => { handleError(error, context)});
+
+    } else if (process.env.VRLIC_API_Token) {
+        apiToken = process.env.VRLIC_API_Token;
+        if (!apiToken) {
+            handleError('The API token is missing. Please configure it in an environment variable of the lambda function');
+            return;
+        }
+        lintEnv = new LIntHttpEnv(`Bearer ${apiToken}`, ingestionUrl);
+
+        if (event.awslogs) {
+            handleCloudWatchLogs(event, context, lintEnv, tagRegexMap);
+        }
+
+        if (event.Records || event.records) {
+            handleRecords(event, context, lintEnv);
+        }
+
+        if (process.env.EventBridge_Logs === 'true') {
+            handleEventBridgelogs(event, context, lintEnv);
+        }
+    } else {
+        console.log('Please configure required environment variable of the lambda function');
     }
-  });
-
-  const lintEnv = new LIntHttpEnv(`Bearer ${apiToken}`, ingestionUrl);
-
-  if (event.awslogs) {
-    handleCloudWatchLogs(event, context, lintEnv, tagRegexMap);
-  }
-
-  if (event.Records || event.records) {
-    handleRecords(event, context, lintEnv);
-  }
-
-  if (process.env.EventBridge_Logs === 'true') {
-    handleEventBridgelogs(event, context, lintEnv);
-  }
-
 };
 
 module.exports = {
