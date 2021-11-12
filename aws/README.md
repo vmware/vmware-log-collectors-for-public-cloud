@@ -20,6 +20,20 @@ The following sections describe each of the above two steps in detail.
 6. Add the below environment variable which are required for VRLIC
     * VRLIC_API_Token = TOKEN taken from logging into VRLIC page
 
+Now, we support lambda vault integration. To enable this integration following configuration is needed
+1. Vault should be configured with AWS IAM Auth to read the secret.
+2. Download the extension by below command<br>
+   curl --silent https://releases.hashicorp.com/vault-lambda-extension/0.5.0/vault-lambda-extension_0.5.0_linux_amd64.zip --output vault-lambda-extension.zip<br>
+3. Create the Layer by using AWS Lambda 'Layer'. Click on 'Create layer'.
+4. Provide the name and upload the .zip file which is downloaded in step 2.
+5. Add the above created layer in Lambda Function.
+6. Add the following environment variables for vault integration
+    * VAULT_ADDR = Vault endpoint (e.g. https://myvault.com:8200)
+    * VAULT_AUTH_PROVIDER = Set value 'aws'
+    * VAULT_AUTH_ROLE = Provide vault role which is bounded with the AWS IAM principal arn
+    * KV_SECRET_PATH = Provide the vault secret path where VRLIC token is stored (Token should be saved with key name VRLIC_API_Token)
+    * VRLIC_API_Url = VRLI Cloud api url
+
 ### Configure the Lambda function
 In the AWS Web Console, configure an environment variable for the Lambda function. The key of the environment variable should be 'VRLIC_API_Token'. The value of the environment variable should be a valid vRealize Log Insight Cloud API token.
 
