@@ -5,7 +5,6 @@ name: Tests
 
 on:
   pull_request:
-    branches: [ main ]
 
 jobs:
   buildaws:
