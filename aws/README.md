@@ -13,7 +13,7 @@ The following sections describe each of the above two steps in detail.
 
 ### Deploy the Lambda function
 1. In the AWS Web Console, create a new Lambda function in AWS.
-2. Select Node.js 12.X as the runtime. Click on 'Create Function'.
+2. Select Node.js 16.X as the runtime. Click on 'Create Function'. (Support Node.js >= 12.x)
 3. Set the 'Handler' field to 'index.handler'. Set the timeout of the Lambda function to 60 seconds.
 4. Select 'Code Entry Type' to 'Upload a .zip file'.
 5. Upload the zip file from the latest release in the 'Function Package'.
