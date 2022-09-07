@@ -22,11 +22,12 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jest": "^21.7.0",
     "jest": "^27.2.0",
-    "jsdom": "16.4.0",
+    "jsdom": "^16.5.0",
     "nock": "^9.6.1"
   },
   "dependencies": {
     "ajv": "^6.12.3",
+    "ansi-regex": "^3.0.1",
     "aws-sdk": "^2.268.1",
     "minimist": "^1.2.6",
     "tar-stream": "^2.1.0",
