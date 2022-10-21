@@ -31,5 +31,5 @@ Resources:
       Timeout: 900
       Environment:
         Variables:
-            LogIntelligence_API_Token: !Ref APIToken
-            LogIntelligence_API_Url: !Ref APIUrl
+            VRLIC_API_Token: !Ref APIToken
+            VRLIC_API_Url: !Ref APIUrl
