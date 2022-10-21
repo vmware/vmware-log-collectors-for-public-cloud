@@ -23,7 +23,7 @@ Resources:
   awslogstovrlicloud:
     Type: 'AWS::Serverless::Function'
     Properties:
-      Runtime: nodejs12.x
+      Runtime: nodejs16.x
       Handler: index.handler
       CodeUri:  s3://ci-data-collector/aws/cloudformation-deployment/Lambda.zip
       FunctionName: !Ref NameOfFunction
