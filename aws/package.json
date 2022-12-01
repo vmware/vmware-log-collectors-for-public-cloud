@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "ajv": "^6.12.3",
-    "ansi-regex": "^3.0.1",
+    "ansi-regex": "^5.0.1",
     "aws-sdk": "^2.268.1",
     "minimist": "^1.2.6",
     "tar-stream": "^2.1.0",
