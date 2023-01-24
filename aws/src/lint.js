@@ -6,6 +6,7 @@ SPDX-License-Identifier: MIT
 const zlib = require('zlib');
 const url = require('url');
 const https = require('https');
+const http = require('http');
 
 const flattenJsonSeperator = '_';
 
@@ -39,7 +40,8 @@ class LIntHttpEnv {
   createRequestOptions(structure) {
     return {
       hostname: this.httpStreamUrl.hostname,
-      path: this.httpStreamUrl.pathname,
+      path: this.httpStreamUrl.path,
+      port: this.httpStreamUrl.port,
       method: 'POST',
       headers: {
         Authorization: this.authToken,
@@ -51,19 +53,19 @@ class LIntHttpEnv {
   }
 }
 
-const sendHttpRequest = (options, postData) => new Promise((resolve, reject) => {
-  const req = https.request(options, (res) => {
-    const body = [];
-    res.on('data', chunk => body.push(chunk));
-    res.on('end', () => {
-      if (res.statusCode < 200 || res.statusCode >= 300) {
-        reject(new Error(`statusCode: ${res.statusCode}, response: ${Buffer.concat(body).toString()}`));
-      } else {
-        resolve('Log sent to Log Intelligence!');
-      }
-    });
+function processResult(res, reject, resolve) {
+  const body = [];
+  res.on('data', chunk => body.push(chunk));
+  res.on('end', () => {
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      reject(new Error(`statusCode: ${res.statusCode}, response: ${Buffer.concat(body).toString()}`));
+    } else {
+      resolve('Log sent successfully!');
+    }
   });
+}
 
+function processRequest(req, reject, postData) {
   req.on('error', error => reject(error));
 
   if (postData) {
@@ -71,6 +73,20 @@ const sendHttpRequest = (options, postData) => new Promise((resolve, reject) => 
   }
 
   req.end();
+}
+
+const sendHttpRequest = (options, postData) => new Promise((resolve, reject) => {
+  const req = http.request(options, (res) => {
+    processResult(res, reject, resolve);
+  });
+  processRequest(req, reject, postData);
+});
+
+const sendHttpsRequest = (options, postData) => new Promise((resolve, reject) => {
+  const req = https.request(options, (res) => {
+    processResult(res, reject, resolve);
+  });
+  processRequest(req, reject, postData);
 });
 
 const gunzipData = zippedData => new Promise((resolve, reject) => {
@@ -96,7 +112,10 @@ class Collector {
 
   postDataToStream(data) {
     const options = this.lintEnv.createRequestOptions(this.structure);
-    return sendHttpRequest(options, data);
+    if (this.lintEnv.httpStreamUrl.protocol === 'http:') {
+      return sendHttpRequest(options, data);
+    }
+    return sendHttpsRequest(options, data);
   }
 }
 
@@ -129,6 +148,7 @@ module.exports = {
   shortenKey,
   flattenJson,
   sendHttpRequest,
+  sendHttpsRequest,
   gzipLogs,
   gunzipData,
   LIntHttpEnv,
