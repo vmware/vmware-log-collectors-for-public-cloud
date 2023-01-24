@@ -9,6 +9,7 @@ const {
   gzipLogs,
   gunzipData,
   LIntHttpEnv,
+  LIntWFProxyEnv,
   Collector,
   flattenJson,
   shortenKey,
@@ -349,9 +350,37 @@ class S3HttpCollector extends Collector {
 }
 
 /* eslint-disable no-param-reassign */
-const processLogText = (cloudWatchLogs, tagRegexMap) => {
+const processLogText = (cloudWatchLogs, tagRegexMap, arn) => {
+  // derive source
+  const keys = arn.split(':');
+  const region = keys[3];
+  const accountId = keys[4];
+
+  // default value
+  let source = accountId + '-' + region;
+
+  // derive source for lambda function or EC2 instance
+  const logGroup = cloudWatchLogs.logGroup;
+  const logStream = cloudWatchLogs.logStream;
+
+  if(logGroup.startsWith('/aws/lambda/')) {
+    const logGroupKeys = logGroup.split('/');
+    source = logGroupKeys[logGroupKeys.length - 1];
+  } else if (logStream.startsWith('i-')) {
+    const logStreamKeys = logGroup.split('-');
+    source = logStreamKeys[logStreamKeys.length - 1];
+  }
+
   for (const logEvent of cloudWatchLogs.logEvents) {
     logEvent.log_type = 'aws_cloud_watch';
+    logEvent.source = source;
+    logEvent.accoundId = accountId;
+    logEvent.Region = region;
+
+    if (process.env.APPLICATION) {
+      logEvent.application = process.env.APPLICATION;
+    }
+
     if ((logEvent.message) && (!logEvent.text)) {
       logEvent.text = logEvent.message;
       delete logEvent.message;
@@ -520,30 +549,32 @@ class KinesisHttpCollector extends Collector {
 }
 
 class CloudWatchHttpCollector extends Collector {
-  constructor(lintEnv, tagRegexMap) {
+  constructor(lintEnv, tagRegexMap, arn) {
     super('cloudwatch', lintEnv);
     this.tagRegexMap = tagRegexMap;
+    this.arn = arn;
   }
 
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
     logsJson.ingest_timestamp = Date.now();
-    processLogText(logsJson, this.tagRegexMap);
+    processLogText(logsJson, this.tagRegexMap, this.arn);
     delete logsJson.subscriptionFilters;
     return JSON.stringify(logsJson);
   }
 }
 
 class CloudWatchKafkaCollector extends Collector {
-  constructor(lintEnv, tagRegexMap) {
+  constructor(lintEnv, tagRegexMap, arn) {
     super('cloudwatch', lintEnv);
     this.tagRegexMap = tagRegexMap;
+    this.arn = arn;
   }
 
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
     logsJson.ingest_timestamp = Date.now();
-    processLogText(logsJson, this.tagRegexMap);
+    processLogText(logsJson, this.tagRegexMap, this.arn);
     logsJson.structure = this.structure;
     delete logsJson.subscriptionFilters;
     // rename the field 'logEvents' to 'logs'.
@@ -662,7 +693,7 @@ const handleError = (error, context) => {
 };
 
 const handleCloudWatchLogs = (event, context, lintEnv, tagRegexMap) => {
-  const collector = new CloudWatchHttpCollector(lintEnv, tagRegexMap);
+  const collector = new CloudWatchHttpCollector(lintEnv, tagRegexMap, context.invokedFunctionArn);
   const zippedLogs = Buffer.from(event.awslogs.data, 'base64');
 
   sendLogs(zippedLogs, collector)
@@ -832,6 +863,14 @@ const handler = (event, context) => {
             tagRegexMap.set(v.substring(4), new RegExp(process.env[v], 'i'));
         }
     });
+
+  if (ingestionUrl.endsWith('f=logs_json_cloudwatch')) {
+    lintEnv = new LIntWFProxyEnv(ingestionUrl);
+
+    if (event.awslogs) {
+      handleCloudWatchLogs(event, context, lintEnv, tagRegexMap);
+    }
+  } else {
     if (process.env.VAULT_ADDR || process.env.VLE_VAULT_ADDR) {
         const options = {
             hostname: '127.0.0.1',
@@ -882,6 +921,7 @@ const handler = (event, context) => {
     } else {
         console.log('Please configure required environment variable of the lambda function');
     }
+  }
 };
 
 module.exports = {

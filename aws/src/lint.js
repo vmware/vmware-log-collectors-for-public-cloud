@@ -6,6 +6,7 @@ SPDX-License-Identifier: MIT
 const zlib = require('zlib');
 const url = require('url');
 const https = require('https');
+const http = require('http');
 
 const flattenJsonSeperator = '_';
 
@@ -51,18 +52,59 @@ class LIntHttpEnv {
   }
 }
 
-const sendHttpRequest = (options, postData) => new Promise((resolve, reject) => {
-  const req = https.request(options, (res) => {
-    const body = [];
-    res.on('data', chunk => body.push(chunk));
-    res.on('end', () => {
-      if (res.statusCode < 200 || res.statusCode >= 300) {
-        reject(new Error(`statusCode: ${res.statusCode}, response: ${Buffer.concat(body).toString()}`));
-      } else {
-        resolve('Log sent to Log Intelligence!');
-      }
-    });
+class LIntWFProxyEnv {
+  constructor(httpStreamUrl) {
+    this.httpStreamUrl = url.parse(httpStreamUrl);
+  }
+
+  createRequestOptions(structure) {
+    return {
+      hostname: this.httpStreamUrl.hostname,
+      path: this.httpStreamUrl.path,
+      port: this.httpStreamUrl.port,
+      method: 'POST',
+      headers: {
+        'Cache-Control': 'no-cache',
+        structure,
+        'Content-Type': 'application/json',
+      },
+    };
+  }
+}
+
+function processResult(res, reject, resolve) {
+  const body = [];
+  res.on('data', chunk => body.push(chunk));
+  res.on('end', () => {
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      reject(new Error(`statusCode: ${res.statusCode}, response: ${Buffer.concat(body).toString()}`));
+    } else {
+      resolve('Log sent successfully!');
+    }
   });
+}
+
+function buildHttpRequest(options, reject, resolve) {
+  return http.request(options, (res) => {
+    processResult(res, reject, resolve);
+  });
+}
+
+function buildHttpsRequest(options, reject, resolve) {
+  return https.request(options, (res) => {
+    processResult(res, reject, resolve);
+  });
+}
+
+const executeRequest = (collector, postData) => new Promise((resolve, reject) => {
+  const options = collector.lintEnv.createRequestOptions(collector.structure);
+  let req;
+
+  if (collector.lintEnv instanceof LIntWFProxyEnv) {
+    req = buildHttpRequest(options, reject, resolve);
+  } else {
+    req = buildHttpsRequest(options, reject, resolve);
+  }
 
   req.on('error', error => reject(error));
 
@@ -95,8 +137,7 @@ class Collector {
   }
 
   postDataToStream(data) {
-    const options = this.lintEnv.createRequestOptions(this.structure);
-    return sendHttpRequest(options, data);
+    return executeRequest(this, data);
   }
 }
 
@@ -128,10 +169,11 @@ const shortenKey = (key) => {
 module.exports = {
   shortenKey,
   flattenJson,
-  sendHttpRequest,
+  executeRequest,
   gzipLogs,
   gunzipData,
   LIntHttpEnv,
   LIntKafkaEnv,
+  LIntWFProxyEnv,
   Collector,
 };
