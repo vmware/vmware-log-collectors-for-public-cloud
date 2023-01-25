@@ -93,7 +93,7 @@ describe('gzipLogs and gunzipData', () => {
   });
 });
 
-describe('sendHttpRequest', () => {
+describe('sendHttpsRequest', () => {
   it('should be able to send a request', (done) => {
     nock('https://test.com')
       .get('/test')
