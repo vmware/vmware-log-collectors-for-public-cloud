@@ -367,7 +367,7 @@ function deriveSource(cloudWatchLogs,source){
     const logGroupKeys = logGroup.split('/');
     source = logGroupKeys[logGroupKeys.length - 1];
   } else if (logStream && logStream.startsWith('i-')) {
-    const logStreamKeys = logGroup.split('-');
+    const logStreamKeys = logStream.split('-');
     source = logStreamKeys[logStreamKeys.length - 1];
   }
 return source;

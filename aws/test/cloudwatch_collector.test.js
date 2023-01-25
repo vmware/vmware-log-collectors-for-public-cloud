@@ -49,6 +49,24 @@ describe('CloudWatchKafkaCollector', () => {
   });
 });
 
+describe('DeriveRegionAndAccount', () => {
+  const collector1 = new CloudWatchHttpCollector(lintTestEnv, new Map(), null);
+
+  it('region & accountId should not be part of json', () => {
+    const logsJson = createSample1();
+    collector1.processLogsJson(logsJson);
+    expect(logsJson).toMatchSnapshot();
+  });
+
+  const collector2 = new CloudWatchHttpCollector(lintTestEnv, new Map(), sampleARN);
+
+  it('region & accountId should be part of json', () => {
+    const logsJson = createSample1();
+    collector2.processLogsJson(logsJson);
+    expect(logsJson).toMatchSnapshot();
+  });
+});
+
 describe('CloudWatchHttpCollector', () => {
   const tagRegexMap = new Map(Object.entries({
     tag1: new RegExp('c(k+)c', 'i'),
@@ -130,6 +148,54 @@ describe('CloudWatchHttpCollector', () => {
           {
             id: 'id1',
             text: ' { "field2/": "value2", "field3.": "abCkKKkcde" } ',
+          },
+        ],
+      };
+
+      collector.processLogsJson(logsJson);
+      expect(logsJson).toMatchSnapshot();
+    });
+
+    it('should process aws/lambda logs JSON', () => {
+      const logsJson = {
+        logGroup: '/aws/lambda/lambda-function-name',
+        logStream: 'some-log-stream',
+        logEvents: [
+          {
+            id: 'id1',
+            text: ' { "timestamp": "1234", "field3": "value3" } ',
+          },
+        ],
+      };
+
+      collector.processLogsJson(logsJson);
+      expect(logsJson).toMatchSnapshot();
+    });
+
+    it('should process aws/ec2 logs JSON', () => {
+      const logsJson = {
+        logGroup: '/aws/ec2/ec2-instance-name',
+        logStream: 'i-instanceId',
+        logEvents: [
+          {
+            id: 'id1',
+            text: ' { "timestamp": "1234", "field3": "value3" } ',
+          },
+        ],
+      };
+
+      collector.processLogsJson(logsJson);
+      expect(logsJson).toMatchSnapshot();
+    });
+
+    it('should process aws/other-service logs JSON', () => {
+      const logsJson = {
+        logGroup: '/aws/other-service/service-name',
+        logStream: 'some-service-id',
+        logEvents: [
+          {
+            id: 'id1',
+            text: ' { "timestamp": "1234", "field3": "value3" } ',
           },
         ],
       };
