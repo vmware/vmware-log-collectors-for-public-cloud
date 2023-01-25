@@ -3,7 +3,7 @@ Copyright 2018 VMware, Inc.
 SPDX-License-Identifier: MIT
 */
 
-const { lintTestEnv, sendLogsAndVerify } = require('../test/helper.test');
+const { sampleARN, lintTestEnv, sendLogsAndVerify } = require('../test/helper.test');
 const { createSample1 } = require('./sample_files/cloudwatch_testdata');
 const { kubernetesLogSample } = require('./sample_files/cloudwatch_testdata');
 
@@ -38,7 +38,7 @@ describe('processLogTextAsJson', () => {
 });
 
 describe('CloudWatchKafkaCollector', () => {
-  const collector = new CloudWatchKafkaCollector(lintTestEnv, new Map());
+  const collector = new CloudWatchKafkaCollector(lintTestEnv, new Map(), sampleARN);
 
   it('processLogsJson', () => {
     const logsJson = createSample1();
@@ -53,7 +53,7 @@ describe('CloudWatchHttpCollector', () => {
   const tagRegexMap = new Map(Object.entries({
     tag1: new RegExp('c(k+)c', 'i'),
   }));
-  const collector = new CloudWatchHttpCollector(lintTestEnv, tagRegexMap);
+  const collector = new CloudWatchHttpCollector(lintTestEnv, tagRegexMap, sampleARN);
 
   describe('processLogsJson', () => {
     it('should process logs JSON', () => {

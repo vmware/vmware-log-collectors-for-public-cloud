@@ -9,7 +9,6 @@ const {
   gzipLogs,
   gunzipData,
   LIntHttpEnv,
-  LIntWFProxyEnv,
   Collector,
   flattenJson,
   shortenKey,
@@ -349,33 +348,54 @@ class S3HttpCollector extends Collector {
   }
 }
 
-/* eslint-disable no-param-reassign */
-const processLogText = (cloudWatchLogs, tagRegexMap, arn) => {
-  // derive source
-  const keys = arn.split(':');
-  const region = keys[3];
-  const accountId = keys[4];
+function deriveRegionAndAccount(arn){
+  let region;
+  let accountId;
 
-  // default value
-  let source = accountId + '-' + region;
-
-  // derive source for lambda function or EC2 instance
+  if (arn) {
+    const keys = arn.split(':');
+    region = keys[3];
+    accountId = keys[4];
+  }
+return {region, accountId};
+}
+function deriveSource(cloudWatchLogs,source){
   const logGroup = cloudWatchLogs.logGroup;
   const logStream = cloudWatchLogs.logStream;
 
-  if(logGroup.startsWith('/aws/lambda/')) {
+  if(logGroup && logGroup.startsWith('/aws/lambda/')) {
     const logGroupKeys = logGroup.split('/');
     source = logGroupKeys[logGroupKeys.length - 1];
-  } else if (logStream.startsWith('i-')) {
+  } else if (logStream && logStream.startsWith('i-')) {
     const logStreamKeys = logGroup.split('-');
     source = logStreamKeys[logStreamKeys.length - 1];
   }
+return source;
+}
+/* eslint-disable no-param-reassign */
+const processLogText = (cloudWatchLogs, tagRegexMap, arn) => {
+  // derive accountId & Region
+  const { region, accountId } = deriveRegionAndAccount(arn);
+
+  // derive source: default
+  let source = accountId + '-' + region;
+
+  // derive source: lambda function/EC2 instance
+  source = deriveSource(cloudWatchLogs,source);
 
   for (const logEvent of cloudWatchLogs.logEvents) {
     logEvent.log_type = 'aws_cloud_watch';
-    logEvent.source = source;
-    logEvent.accoundId = accountId;
-    logEvent.Region = region;
+    if (source) {
+      logEvent.source = source;
+    }
+    
+    if (accountId) {
+      logEvent.accountId = accountId;
+    }
+    
+    if (region) {
+      logEvent.Region = region;
+    }
 
     if (process.env.APPLICATION) {
       logEvent.application = process.env.APPLICATION;
@@ -863,14 +883,6 @@ const handler = (event, context) => {
             tagRegexMap.set(v.substring(4), new RegExp(process.env[v], 'i'));
         }
     });
-
-  if (ingestionUrl.endsWith('f=logs_json_cloudwatch')) {
-    lintEnv = new LIntWFProxyEnv(ingestionUrl);
-
-    if (event.awslogs) {
-      handleCloudWatchLogs(event, context, lintEnv, tagRegexMap);
-    }
-  } else {
     if (process.env.VAULT_ADDR || process.env.VLE_VAULT_ADDR) {
         const options = {
             hostname: '127.0.0.1',
@@ -921,7 +933,6 @@ const handler = (event, context) => {
     } else {
         console.log('Please configure required environment variable of the lambda function');
     }
-  }
 };
 
 module.exports = {

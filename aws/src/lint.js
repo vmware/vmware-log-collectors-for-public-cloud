@@ -40,30 +40,11 @@ class LIntHttpEnv {
   createRequestOptions(structure) {
     return {
       hostname: this.httpStreamUrl.hostname,
-      path: this.httpStreamUrl.pathname,
-      method: 'POST',
-      headers: {
-        Authorization: this.authToken,
-        'Cache-Control': 'no-cache',
-        structure,
-        'Content-Type': 'application/json',
-      },
-    };
-  }
-}
-
-class LIntWFProxyEnv {
-  constructor(httpStreamUrl) {
-    this.httpStreamUrl = url.parse(httpStreamUrl);
-  }
-
-  createRequestOptions(structure) {
-    return {
-      hostname: this.httpStreamUrl.hostname,
       path: this.httpStreamUrl.path,
       port: this.httpStreamUrl.port,
       method: 'POST',
       headers: {
+        Authorization: this.authToken,
         'Cache-Control': 'no-cache',
         structure,
         'Content-Type': 'application/json',
@@ -84,28 +65,23 @@ function processResult(res, reject, resolve) {
   });
 }
 
-function buildHttpRequest(options, reject, resolve) {
-  return http.request(options, (res) => {
+const sendHttpRequest = (options, postData) => new Promise((resolve, reject) => {
+  const req = http.request(options, (res) => {
     processResult(res, reject, resolve);
   });
-}
+  req.on('error', error => reject(error));
 
-function buildHttpsRequest(options, reject, resolve) {
-  return https.request(options, (res) => {
-    processResult(res, reject, resolve);
-  });
-}
-
-const executeRequest = (collector, postData) => new Promise((resolve, reject) => {
-  const options = collector.lintEnv.createRequestOptions(collector.structure);
-  let req;
-
-  if (collector.lintEnv instanceof LIntWFProxyEnv) {
-    req = buildHttpRequest(options, reject, resolve);
-  } else {
-    req = buildHttpsRequest(options, reject, resolve);
+  if (postData) {
+    req.write(postData);
   }
 
+  req.end();
+});
+
+const sendHttpsRequest = (options, postData) => new Promise((resolve, reject) => {
+  const req = https.request(options, (res) => {
+    processResult(res, reject, resolve);
+  });
   req.on('error', error => reject(error));
 
   if (postData) {
@@ -137,7 +113,11 @@ class Collector {
   }
 
   postDataToStream(data) {
-    return executeRequest(this, data);
+    const options = this.lintEnv.createRequestOptions(this.structure);
+    if (this.lintEnv.httpStreamUrl.protocol === 'http:') {
+      return sendHttpRequest(options, data);
+    }
+    return sendHttpsRequest(options, data);
   }
 }
 
@@ -169,11 +149,11 @@ const shortenKey = (key) => {
 module.exports = {
   shortenKey,
   flattenJson,
-  executeRequest,
+  sendHttpRequest,
+  sendHttpsRequest,
   gzipLogs,
   gunzipData,
   LIntHttpEnv,
   LIntKafkaEnv,
-  LIntWFProxyEnv,
   Collector,
 };

@@ -9,7 +9,7 @@ const { lintTestEnv } = require('./helper.test');
 const {
   gzipLogs,
   gunzipData,
-  sendHttpRequest,
+  sendHttpsRequest,
   LIntKafkaEnv,
   flattenJson,
 } = require('../src/lint');
@@ -105,7 +105,7 @@ describe('sendHttpRequest', () => {
       method: 'GET',
     };
 
-    sendHttpRequest(options, null)
+    sendHttpsRequest(options, null)
       .then(
         () => done(),
         error => done.fail(error),
