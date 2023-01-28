@@ -359,7 +359,9 @@ function deriveRegionAndAccount(arn){
   }
 return {region, accountId};
 }
-function deriveSource(cloudWatchLogs,source){
+function deriveSource(cloudWatchLogs,accountId, region){
+  // derive source: default
+  let source = accountId + '-' + region;
   const logGroup = cloudWatchLogs.logGroup;
   const logStream = cloudWatchLogs.logStream;
 
@@ -376,12 +378,9 @@ return source;
 const processLogText = (cloudWatchLogs, tagRegexMap, arn) => {
   // derive accountId & Region
   const { region, accountId } = deriveRegionAndAccount(arn);
-
-  // derive source: default
-  let source = accountId + '-' + region;
-
+  
   // derive source: lambda function/EC2 instance
-  source = deriveSource(cloudWatchLogs,source);
+  source = deriveSource(cloudWatchLogs, accountId, region);
 
   for (const logEvent of cloudWatchLogs.logEvents) {
     logEvent.log_type = 'aws_cloud_watch';

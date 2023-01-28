@@ -65,10 +65,7 @@ function processResult(res, reject, resolve) {
   });
 }
 
-const sendHttpRequest = (options, postData) => new Promise((resolve, reject) => {
-  const req = http.request(options, (res) => {
-    processResult(res, reject, resolve);
-  });
+function processRequest(req, reject, postData) {
   req.on('error', error => reject(error));
 
   if (postData) {
@@ -76,19 +73,20 @@ const sendHttpRequest = (options, postData) => new Promise((resolve, reject) => 
   }
 
   req.end();
+}
+
+const sendHttpRequest = (options, postData) => new Promise((resolve, reject) => {
+  const req = http.request(options, (res) => {
+    processResult(res, reject, resolve);
+  });
+  processRequest(req, reject, postData);
 });
 
 const sendHttpsRequest = (options, postData) => new Promise((resolve, reject) => {
   const req = https.request(options, (res) => {
     processResult(res, reject, resolve);
   });
-  req.on('error', error => reject(error));
-
-  if (postData) {
-    req.write(postData);
-  }
-
-  req.end();
+  processRequest(req, reject, postData);
 });
 
 const gunzipData = zippedData => new Promise((resolve, reject) => {
