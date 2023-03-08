@@ -348,10 +348,58 @@ class S3HttpCollector extends Collector {
   }
 }
 
+function deriveRegionAndAccount(arn){
+  let region;
+  let accountId;
+
+  if (arn) {
+    const keys = arn.split(':');
+    region = keys[3];
+    accountId = keys[4];
+  }
+return {region, accountId};
+}
+function deriveSource(cloudWatchLogs,accountId, region){
+  // derive source: default
+  let source = accountId + '-' + region;
+  const logGroup = cloudWatchLogs.logGroup;
+  const logStream = cloudWatchLogs.logStream;
+
+  if(logGroup && logGroup.startsWith('/aws/lambda/')) {
+    const logGroupKeys = logGroup.split('/');
+    source = logGroupKeys[logGroupKeys.length - 1];
+  } else if (logStream && logStream.startsWith('i-')) {
+    const logStreamKeys = logStream.split('-');
+    source = logStreamKeys[logStreamKeys.length - 1];
+  }
+return source;
+}
 /* eslint-disable no-param-reassign */
-const processLogText = (cloudWatchLogs, tagRegexMap) => {
+const processLogText = (cloudWatchLogs, tagRegexMap, arn) => {
+  // derive accountId & Region
+  const { region, accountId } = deriveRegionAndAccount(arn);
+  
+  // derive source: lambda function/EC2 instance
+  source = deriveSource(cloudWatchLogs, accountId, region);
+
   for (const logEvent of cloudWatchLogs.logEvents) {
     logEvent.log_type = 'aws_cloud_watch';
+    if (source) {
+      logEvent.source = source;
+    }
+    
+    if (accountId) {
+      logEvent.accountId = accountId;
+    }
+    
+    if (region) {
+      logEvent.Region = region;
+    }
+
+    if (process.env.APPLICATION) {
+      logEvent.application = process.env.APPLICATION;
+    }
+
     if ((logEvent.message) && (!logEvent.text)) {
       logEvent.text = logEvent.message;
       delete logEvent.message;
@@ -520,30 +568,32 @@ class KinesisHttpCollector extends Collector {
 }
 
 class CloudWatchHttpCollector extends Collector {
-  constructor(lintEnv, tagRegexMap) {
+  constructor(lintEnv, tagRegexMap, arn) {
     super('cloudwatch', lintEnv);
     this.tagRegexMap = tagRegexMap;
+    this.arn = arn;
   }
 
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
     logsJson.ingest_timestamp = Date.now();
-    processLogText(logsJson, this.tagRegexMap);
+    processLogText(logsJson, this.tagRegexMap, this.arn);
     delete logsJson.subscriptionFilters;
     return JSON.stringify(logsJson);
   }
 }
 
 class CloudWatchKafkaCollector extends Collector {
-  constructor(lintEnv, tagRegexMap) {
+  constructor(lintEnv, tagRegexMap, arn) {
     super('cloudwatch', lintEnv);
     this.tagRegexMap = tagRegexMap;
+    this.arn = arn;
   }
 
   /* eslint-disable no-param-reassign */
   processLogsJson(logsJson) {
     logsJson.ingest_timestamp = Date.now();
-    processLogText(logsJson, this.tagRegexMap);
+    processLogText(logsJson, this.tagRegexMap, this.arn);
     logsJson.structure = this.structure;
     delete logsJson.subscriptionFilters;
     // rename the field 'logEvents' to 'logs'.
@@ -662,7 +712,7 @@ const handleError = (error, context) => {
 };
 
 const handleCloudWatchLogs = (event, context, lintEnv, tagRegexMap) => {
-  const collector = new CloudWatchHttpCollector(lintEnv, tagRegexMap);
+  const collector = new CloudWatchHttpCollector(lintEnv, tagRegexMap, context.invokedFunctionArn);
   const zippedLogs = Buffer.from(event.awslogs.data, 'base64');
 
   sendLogs(zippedLogs, collector)

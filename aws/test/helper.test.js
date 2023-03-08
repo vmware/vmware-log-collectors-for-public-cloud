@@ -13,6 +13,8 @@ const lintTestEnv = new LIntHttpEnv(
   'https://data.mock.symphony.com/le-mans/v1/streams/ingestion-pipeline-stream',
 );
 
+const sampleARN = 'arn:aws:someService:region:accountId:serviceName';
+
 const sendLogsAndVerify = (done, collector, logsJson, expectedReqBody, expectedReqHeaders) => {
   nock('https://data.mock.symphony.com', expectedReqHeaders)
     .post(
@@ -29,5 +31,6 @@ const sendLogsAndVerify = (done, collector, logsJson, expectedReqBody, expectedR
 
 module.exports = {
   lintTestEnv,
+  sampleARN,
   sendLogsAndVerify,
 };

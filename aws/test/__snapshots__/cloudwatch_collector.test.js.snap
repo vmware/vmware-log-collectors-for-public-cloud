@@ -5,8 +5,11 @@ Object {
   "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "id": "id1",
       "log_type": "aws_cloud_watch",
+      "source": "accountId-region",
       "tag1": "ckkkkc",
       "text": Array [
         Object {
@@ -23,8 +26,11 @@ Object {
   "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "id": "id1",
       "log_type": "aws_cloud_watch",
+      "source": "accountId-region",
       "tag1": "CkKKkc",
       "text": "abCkKKkcde",
     },
@@ -37,10 +43,13 @@ Object {
   "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "field2": "value2",
       "field3": "abCkKKkcde",
       "id": "id1",
       "log_type": "aws_cloud_watch",
+      "source": "accountId-region",
       "tag1": "CkKKkc",
       "text": " { \\"field2\\": \\"value2\\", \\"field3\\": \\"abCkKKkcde\\" } ",
     },
@@ -53,9 +62,12 @@ Object {
   "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "field3": "value3",
       "id": "id1",
       "log_type": "aws_cloud_watch",
+      "source": "accountId-region",
       "text": " { \\"timestamp\\": \\"1234\\", \\"field3\\": \\"value3\\" } ",
       "timestamp": 1234,
     },
@@ -68,10 +80,13 @@ Object {
   "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "field2_": "value2",
       "field3_": "abCkKKkcde",
       "id": "id1",
       "log_type": "aws_cloud_watch",
+      "source": "accountId-region",
       "tag1": "CkKKkc",
       "text": " { \\"field2/\\": \\"value2\\", \\"field3.\\": \\"abCkKKkcde\\" } ",
     },
@@ -84,6 +99,8 @@ Object {
   "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "docker_container_id": "5b15e87886a7ca5f7ebc73a15aa9091c9c0f880ee2974515749e16710367462c",
       "id": "34051922485820161636472577410016310394916410432944603138",
       "kubernetes_container_name": "weave",
@@ -98,6 +115,7 @@ Object {
       "log": "INFO: 2017/10/02 06:44:13.214543 Discovered remote MAC 62:a1:3d:f6:eb:65 at 62:a1:3d:f6:eb:65(kube-235)
 ",
       "log_type": "aws_cloud_watch",
+      "source": "runbook",
       "stream": "stderr",
       "text": "{
     \\"log\\": \\"INFO: 2017/10/02 06:44:13.214543 Discovered remote MAC 62:a1:3d:f6:eb:65 at 62:a1:3d:f6:eb:65(kube-235)\\\\n\\",
@@ -129,20 +147,29 @@ Object {
   "ingest_timestamp": 1538769915817,
   "logEvents": Array [
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "id": "34051922485820161636472577410016310394916410432944603138",
       "log_type": "aws_cloud_watch",
+      "source": "runbook",
       "text": "2018-05-21T22:16:53.934Z	aab15e49-5d44-11e8-a7db-afa704cec35a	Status: 200
 ",
     },
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "id": "001",
       "log_type": "aws_cloud_watch",
       "message": "message of 001",
+      "source": "runbook",
       "text": "text of 001",
     },
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "id": "34051922485820161636472577410016310394916410432944603138",
       "log_type": "aws_cloud_watch",
+      "source": "runbook",
       "text": Array [
         Object {
           "fielda": "fielda",
@@ -164,20 +191,29 @@ Object {
   "logStream": "unittest8",
   "logs": Array [
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "id": "34051922485820161636472577410016310394916410432944603138",
       "log_type": "aws_cloud_watch",
+      "source": "runbook",
       "text": "2018-05-21T22:16:53.934Z	aab15e49-5d44-11e8-a7db-afa704cec35a	Status: 200
 ",
     },
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "id": "001",
       "log_type": "aws_cloud_watch",
       "message": "message of 001",
+      "source": "runbook",
       "text": "text of 001",
     },
     Object {
+      "Region": "region",
+      "accountId": "accountId",
       "id": "34051922485820161636472577410016310394916410432944603138",
       "log_type": "aws_cloud_watch",
+      "source": "runbook",
       "text": Array [
         Object {
           "fielda": "fielda",
@@ -221,5 +257,143 @@ Object {
 exports[`processLogTextAsJson should process log text not in JSON format 1`] = `
 Object {
   "text": " { \\"field2\\": \\"value2\\", field3: \\"value3\\" } ",
+}
+`;
+
+exports[`CloudWatchHttpCollector processLogsJson should process aws/lambda logs JSON 1`] = `
+Object {
+  "ingest_timestamp": 1538769915817,
+  "logEvents": Array [
+    Object {
+      "Region": "region",
+      "accountId": "accountId",
+      "field3": "value3",
+      "id": "id1",
+      "log_type": "aws_cloud_watch",
+      "source": "lambda-function-name",
+      "text": " { \\"timestamp\\": \\"1234\\", \\"field3\\": \\"value3\\" } ",
+      "timestamp": 1234,
+    },
+  ],
+  "logGroup": "/aws/lambda/lambda-function-name",
+  "logStream": "some-log-stream",
+}
+`;
+
+exports[`CloudWatchHttpCollector processLogsJson should process aws/ec2 logs JSON 1`] = `
+Object {
+  "ingest_timestamp": 1538769915817,
+  "logEvents": Array [
+    Object {
+      "Region": "region",
+      "accountId": "accountId",
+      "field3": "value3",
+      "id": "id1",
+      "log_type": "aws_cloud_watch",
+      "source": "instanceId",
+      "text": " { \\"timestamp\\": \\"1234\\", \\"field3\\": \\"value3\\" } ",
+      "timestamp": 1234,
+    },
+  ],
+  "logGroup": "/aws/ec2/ec2-instance-name",
+  "logStream": "i-instanceId",
+}
+`;
+
+exports[`CloudWatchHttpCollector processLogsJson should process aws/other-service logs JSON 1`] = `
+Object {
+  "ingest_timestamp": 1538769915817,
+  "logEvents": Array [
+    Object {
+      "Region": "region",
+      "accountId": "accountId",
+      "field3": "value3",
+      "id": "id1",
+      "log_type": "aws_cloud_watch",
+      "source": "accountId-region",
+      "text": " { \\"timestamp\\": \\"1234\\", \\"field3\\": \\"value3\\" } ",
+      "timestamp": 1234,
+    },
+  ],
+  "logGroup": "/aws/other-service/service-name",
+  "logStream": "some-service-id",
+}
+`;
+
+exports[`DeriveRegionAndAccount region & accountId should not be part of json 1`] = `
+Object {
+  "ingest_timestamp": 1538769915817,
+  "logEvents": Array [
+    Object {
+      "id": "34051922485820161636472577410016310394916410432944603138",
+      "log_type": "aws_cloud_watch",
+      "source": "runbook",
+      "text": "2018-05-21T22:16:53.934Z	aab15e49-5d44-11e8-a7db-afa704cec35a	Status: 200
+",
+    },
+    Object {
+      "id": "001",
+      "log_type": "aws_cloud_watch",
+      "message": "message of 001",
+      "source": "runbook",
+      "text": "text of 001",
+    },
+    Object {
+      "id": "34051922485820161636472577410016310394916410432944603138",
+      "log_type": "aws_cloud_watch",
+      "source": "runbook",
+      "text": Array [
+        Object {
+          "fielda": "fielda",
+        },
+      ],
+    },
+  ],
+  "logGroup": "/aws/lambda/runbook",
+  "logStream": "unittest8",
+  "messageType": "DATA_MESSAGE",
+  "owner": "792677813823",
+}
+`;
+
+exports[`DeriveRegionAndAccount region & accountId should be part of json 1`] = `
+Object {
+  "ingest_timestamp": 1538769915817,
+  "logEvents": Array [
+    Object {
+      "Region": "region",
+      "accountId": "accountId",
+      "id": "34051922485820161636472577410016310394916410432944603138",
+      "log_type": "aws_cloud_watch",
+      "source": "runbook",
+      "text": "2018-05-21T22:16:53.934Z	aab15e49-5d44-11e8-a7db-afa704cec35a	Status: 200
+",
+    },
+    Object {
+      "Region": "region",
+      "accountId": "accountId",
+      "id": "001",
+      "log_type": "aws_cloud_watch",
+      "message": "message of 001",
+      "source": "runbook",
+      "text": "text of 001",
+    },
+    Object {
+      "Region": "region",
+      "accountId": "accountId",
+      "id": "34051922485820161636472577410016310394916410432944603138",
+      "log_type": "aws_cloud_watch",
+      "source": "runbook",
+      "text": Array [
+        Object {
+          "fielda": "fielda",
+        },
+      ],
+    },
+  ],
+  "logGroup": "/aws/lambda/runbook",
+  "logStream": "unittest8",
+  "messageType": "DATA_MESSAGE",
+  "owner": "792677813823",
 }
 `;
