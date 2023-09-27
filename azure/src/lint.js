@@ -57,8 +57,10 @@ const sendHttpRequest = (options, postData) => new Promise((resolve, reject) => 
     res.on('data', chunk => body.push(chunk));
     res.on('end', () => {
       if (res.statusCode < 200 || res.statusCode >= 300) {
+        console.log("Error processing http request, status code :" + res.statusCode);
         reject(new Error(`statusCode: ${res.statusCode}, response: ${Buffer.concat(body).toString()}`));
       } else {
+        console.log("Successfully processed http request!");
         resolve('Log sent to Log Intelligence!');
       }
     });
