@@ -47,7 +47,7 @@
     "@babel/helpers" "^7.18.0"
     "@babel/parser" "^7.18.0"
     "@babel/template" "^7.16.7"
-    "@babel/traverse" "^7.18.0"
+    "@babel/traverse" "^7.23.2"
     "@babel/types" "^7.18.0"
     convert-source-map "^1.7.0"
     debug "^4.1.0"
@@ -68,7 +68,7 @@
     "@babel/helpers" "^7.17.2"
     "@babel/parser" "^7.17.0"
     "@babel/template" "^7.16.7"
-    "@babel/traverse" "^7.17.0"
+    "@babel/traverse" "^7.23.2"
     "@babel/types" "^7.17.0"
     convert-source-map "^1.7.0"
     debug "^4.1.0"
@@ -170,7 +170,7 @@
     "@babel/helper-split-export-declaration" "^7.16.7"
     "@babel/helper-validator-identifier" "^7.16.7"
     "@babel/template" "^7.16.7"
-    "@babel/traverse" "^7.16.7"
+    "@babel/traverse" "^7.23.2"
     "@babel/types" "^7.16.7"
 
 "@babel/helper-module-transforms@^7.18.0":
@@ -184,7 +184,7 @@
     "@babel/helper-split-export-declaration" "^7.16.7"
     "@babel/helper-validator-identifier" "^7.16.7"
     "@babel/template" "^7.16.7"
-    "@babel/traverse" "^7.18.0"
+    "@babel/traverse" "^7.23.2"
     "@babel/types" "^7.18.0"
 
 "@babel/helper-plugin-utils@^7.0.0", "@babel/helper-plugin-utils@^7.10.4", "@babel/helper-plugin-utils@^7.12.13", "@babel/helper-plugin-utils@^7.14.5", "@babel/helper-plugin-utils@^7.16.7", "@babel/helper-plugin-utils@^7.8.0":
@@ -229,7 +229,7 @@
   integrity sha512-0Qu7RLR1dILozr/6M0xgj+DFPmi6Bnulgm9M8BVa9ZCWxDqlSnqt3cf8IDPB5m45sVXUZ0kuQAgUrdSFFH79fQ==
   dependencies:
     "@babel/template" "^7.16.7"
-    "@babel/traverse" "^7.17.0"
+    "@babel/traverse" "^7.23.2"
     "@babel/types" "^7.17.0"
 
 "@babel/helpers@^7.18.0":
@@ -238,7 +238,7 @@
   integrity sha512-AE+HMYhmlMIbho9nbvicHyxFwhrO+xhKB6AhRxzl8w46Yj0VXTZjEsAoBVC7rB2I0jzX+yWyVybnO08qkfx6kg==
   dependencies:
     "@babel/template" "^7.16.7"
-    "@babel/traverse" "^7.18.0"
+    "@babel/traverse" "^7.23.2"
     "@babel/types" "^7.18.0"
 
 "@babel/highlight@^7.16.7":
@@ -360,9 +360,9 @@
     "@babel/parser" "^7.16.7"
     "@babel/types" "^7.16.7"
 
-"@babel/traverse@^7.16.7", "@babel/traverse@^7.17.0", "@babel/traverse@^7.7.2":
-  version "7.17.0"
-  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.17.0.tgz#3143e5066796408ccc880a33ecd3184f3e75cd30"
+"@babel/traverse@^7.23.2", "@babel/traverse@^7.23.2", "@babel/traverse@^7.23.2":
+  version "7.23.2"
+  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.23.2.tgz#3143e5066796408ccc880a33ecd3184f3e75cd30"
   integrity sha512-fpFIXvqD6kC7c7PUNnZ0Z8cQXlarCLtCUpt2S1Dx7PjoRtCFffvOkHHSom+m5HIxMZn5bIBVb71lhabcmjEsqg==
   dependencies:
     "@babel/code-frame" "^7.16.7"
@@ -376,9 +376,9 @@
     debug "^4.1.0"
     globals "^11.1.0"
 
-"@babel/traverse@^7.18.0":
-  version "7.18.0"
-  resolved "http://build-artifactory.eng.vmware.com/artifactory/api/npm/npm/@babel/traverse/-/traverse-7.18.0.tgz#0e5ec6db098660b2372dd63d096bf484e32d27ba"
+"@babel/traverse@^7.23.2":
+  version "7.23.2"
+  resolved "http://build-artifactory.eng.vmware.com/artifactory/api/npm/npm/@babel/traverse/-/traverse-7.23.2.tgz#0e5ec6db098660b2372dd63d096bf484e32d27ba"
   integrity sha512-oNOO4vaoIQoGjDQ84LgtF/IAlxlyqL4TUuoQ7xLkQETFaHkY1F7yazhB4Kt3VcZGL0ZF/jhrEpnXqUb0M7V3sw==
   dependencies:
     "@babel/code-frame" "^7.16.7"
@@ -2476,7 +2476,7 @@ jest-snapshot@^28.1.0:
     "@babel/core" "^7.11.6"
     "@babel/generator" "^7.7.2"
     "@babel/plugin-syntax-typescript" "^7.7.2"
-    "@babel/traverse" "^7.7.2"
+    "@babel/traverse" "^7.23.2"
     "@babel/types" "^7.3.3"
     "@jest/expect-utils" "^28.1.0"
     "@jest/transform" "^28.1.0"
