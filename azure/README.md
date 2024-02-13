@@ -51,3 +51,7 @@ Developer need to run following command in `/azure` directory, once code changes
 `yarn build`
 
 This command will copy required files in blobStorageFunction and eventHubFunction under `/target` directory, which will later be used by template for automated deployment.
+
+## Note
+If you face the error as in https://learn.microsoft.com/en-us/answers/questions/1368325/microsoft-azure-functions-extensionbundle-error-re
+, please update the version in host.json file to "[4.0.0, 5.0.0)"
